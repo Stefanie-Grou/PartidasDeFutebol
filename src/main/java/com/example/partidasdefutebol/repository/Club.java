@@ -62,11 +62,11 @@ public class Club {
         this.createdOn = createdOn;
     }
 
-    public Boolean getActive() {
+    public Boolean getIsActive() {
         return isActive;
     }
 
-    public void setActive(Boolean active) {
+    public void setIsActive(Boolean active) {
         isActive = active;
     }
 
@@ -77,6 +77,8 @@ public class Club {
     public void setId(Long id) {
         this.id = id;
     }
+
+
 
     @Override
     public String toString() {
