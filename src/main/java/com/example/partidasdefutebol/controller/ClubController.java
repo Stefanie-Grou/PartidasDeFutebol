@@ -20,12 +20,10 @@ public class ClubController {
 
     @PostMapping
     public ResponseEntity<Club> save(@Valid @RequestBody Club club) {
-        //int totalClubInDb = ClubService.totalClubsInDb(club.getClubName(), club.getStateAcronym());
         if (clubRepository.existsByClubNameAndStateAcronym(club.getClubName(), club.getStateAcronym())) {
             return ResponseEntity.status(409).build();
         }
         Club savedClub = clubRepository.save(club);
         return ResponseEntity.status(201).body(savedClub);
     }
-
 }
