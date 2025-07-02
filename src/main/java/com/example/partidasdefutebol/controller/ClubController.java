@@ -35,7 +35,6 @@ public class ClubController {
         if (clubOptional.isEmpty()) {
             return ResponseEntity.status(404).build();
         }
-
         Club existingClub = clubOptional.get();
         existingClub.setClubName(requestedToUpdateClub.getClubName());
         existingClub.setStateAcronym(requestedToUpdateClub.getStateAcronym());
@@ -47,5 +46,17 @@ public class ClubController {
         } catch (Exception e) {
             return ResponseEntity.status(409).build();
         }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> delete(@PathVariable Long id) {
+        Optional<Club> clubOptional = clubRepository.findById(id);
+        if (clubOptional.isEmpty()) {
+            return ResponseEntity.status(404).build();
+        }
+        Club existingClub = clubOptional.get();
+        clubOptional.get().setIsActive(false);
+        clubRepository.save(existingClub);
+        return ResponseEntity.status(204).build();
     }
 }
