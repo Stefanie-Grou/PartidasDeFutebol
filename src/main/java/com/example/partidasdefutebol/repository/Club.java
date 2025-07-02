@@ -51,6 +51,8 @@ public class Club {
     public void setStateAcronym(String stateAcronym) {
         if (isValidBrazilianState(stateAcronym)) {
             this.stateAcronym = stateAcronym;
+        } else {
+            throw new IllegalArgumentException();
         }
     }
 
@@ -72,6 +74,10 @@ public class Club {
 
     public Long getId() {
         return id;
+    }
+
+    public Long getId(Long id) {
+        return this.id;
     }
 
     public void setId(Long id) {
