@@ -5,15 +5,12 @@ import com.example.partidasdefutebol.repository.ClubRepository;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
+import java.util.Optional;
 
 @RestController
-@RequestMapping("/criar-clube")
+@RequestMapping("/clube")
 public class ClubController {
     @Autowired
     private ClubRepository clubRepository;
@@ -23,7 +20,32 @@ public class ClubController {
         if (clubRepository.existsByClubNameAndStateAcronym(club.getClubName(), club.getStateAcronym())) {
             return ResponseEntity.status(409).build();
         }
-        Club savedClub = clubRepository.save(club);
-        return ResponseEntity.status(201).body(savedClub);
+
+        try {
+            Club savedClub = clubRepository.save(club);
+            return ResponseEntity.status(201).body(savedClub);
+        } catch (Exception e) {
+            return ResponseEntity.status(409).build();
+        }
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> update(@PathVariable Long id, @RequestBody Club requestedToUpdateClub) {
+        Optional<Club> clubOptional = clubRepository.findById(id);
+        if (clubOptional.isEmpty()) {
+            return ResponseEntity.status(404).build();
+        }
+
+        Club existingClub = clubOptional.get();
+        existingClub.setClubName(requestedToUpdateClub.getClubName());
+        existingClub.setStateAcronym(requestedToUpdateClub.getStateAcronym());
+        existingClub.setCreatedOn(requestedToUpdateClub.getCreatedOn());
+        existingClub.setIsActive(requestedToUpdateClub.getIsActive());
+        try {
+            Club updatedClub = clubRepository.save(existingClub);
+            return ResponseEntity.status(200).body(updatedClub);
+        } catch (Exception e) {
+            return ResponseEntity.status(409).build();
+        }
     }
 }
