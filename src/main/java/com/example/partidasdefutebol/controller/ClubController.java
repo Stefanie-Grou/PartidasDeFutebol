@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -58,5 +59,15 @@ public class ClubController {
         clubOptional.get().setIsActive(false);
         clubRepository.save(existingClub);
         return ResponseEntity.status(204).build();
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Club> findById(@PathVariable Long id) {
+        Optional<Club> clubOptional = clubRepository.findById(id);
+        if (clubOptional.isEmpty()) {
+            return ResponseEntity.status(404).build();
+        }
+        Club existingClub = clubOptional.get();
+        return ResponseEntity.status(200).body(existingClub);
     }
 }
