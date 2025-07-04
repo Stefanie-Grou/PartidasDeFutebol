@@ -20,10 +20,6 @@ public class ClubController {
 
     @PostMapping
     public ResponseEntity<Club> save(@Valid @RequestBody Club club) {
-        if (clubRepository.existsByClubNameAndStateAcronym(club.getClubName(), club.getStateAcronym())) {
-            return ResponseEntity.status(409).build();
-        }
-
         try {
             Club savedClub = clubRepository.save(club);
             return ResponseEntity.status(201).body(savedClub);
