@@ -44,4 +44,14 @@ public class StadiumController {
             return ResponseEntity.status(409).build();
         }
     }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Stadium> findById(@PathVariable Long id) {
+        Optional<Stadium> optionalStadium = stadiumRepository.findById(id);
+        if (optionalStadium.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        } else {
+            return ResponseEntity.ok(optionalStadium.get());
+        }
+    }
 }
