@@ -1,6 +1,6 @@
 package com.example.partidasdefutebol.service;
 
-import com.example.partidasdefutebol.repository.Club;
+import com.example.partidasdefutebol.entities.ClubEntity;
 import com.example.partidasdefutebol.repository.ClubRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -12,11 +12,11 @@ public class ClubService {
     @Autowired
     private static ClubRepository clubRepository;
 
-    public Club save(Club club) {
-        return clubRepository.save(club);
+    public ClubEntity save(ClubEntity clubEntity) {
+        return clubRepository.save(clubEntity);
     }
 
-    public Club update(Long id, Club requestedToUpdateClub) {
-        return clubRepository.save(requestedToUpdateClub);
+    public ClubEntity update(Long id, ClubEntity requestedToUpdateClubEntity) {
+        return clubRepository.save(requestedToUpdateClubEntity);
     }
 }

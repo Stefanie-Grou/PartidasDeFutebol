@@ -1,6 +1,6 @@
 package com.example.partidasdefutebol.controller;
 
-import com.example.partidasdefutebol.repository.Stadium;
+import com.example.partidasdefutebol.entities.StadiumEntity;
 import com.example.partidasdefutebol.repository.StadiumRepository;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,10 +16,10 @@ public class StadiumController {
     private StadiumRepository stadiumRepository;
 
     @PostMapping
-    public ResponseEntity<Stadium> save(@Valid @RequestBody Stadium stadium) {
+    public ResponseEntity<StadiumEntity> save(@Valid @RequestBody StadiumEntity stadiumEntity) {
         try {
-            Stadium savedStadium = stadiumRepository.save(stadium);
-            return ResponseEntity.status(201).body(savedStadium);
+            StadiumEntity savedStadiumEntity = stadiumRepository.save(stadiumEntity);
+            return ResponseEntity.status(201).body(savedStadiumEntity);
         } catch (Exception e) {
             return ResponseEntity.status(409).build();
         }
@@ -27,31 +27,28 @@ public class StadiumController {
 
     @PutMapping
     @RequestMapping("/{id}")
-    public ResponseEntity<Stadium> update(@PathVariable Long id, @Valid @RequestBody Stadium requestedToUpdateStadium) {
+    public ResponseEntity<StadiumEntity> update(@PathVariable Long id, @Valid @RequestBody StadiumEntity requestedToUpdateStadiumEntity) {
 
-        Optional<Stadium> optionalStadium = stadiumRepository.findById(id);
+        Optional<StadiumEntity> optionalStadium = stadiumRepository.findById(id);
 
         if (optionalStadium.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
-        Stadium existingStadium = optionalStadium.get();
-        existingStadium.setStadiumName(requestedToUpdateStadium.getStadiumName());
-        existingStadium.setStadiumState(requestedToUpdateStadium.getStadiumState());
+        StadiumEntity existingStadiumEntity = optionalStadium.get();
+        existingStadiumEntity.setStadiumName(requestedToUpdateStadiumEntity.getStadiumName());
+        existingStadiumEntity.setStadiumState(requestedToUpdateStadiumEntity.getStadiumState());
         try {
-            Stadium updatedStadium = stadiumRepository.save(existingStadium);
-            return ResponseEntity.status(200).body(updatedStadium);
+            StadiumEntity updatedStadiumEntity = stadiumRepository.save(existingStadiumEntity);
+            return ResponseEntity.status(200).body(updatedStadiumEntity);
         } catch (Exception e) {
             return ResponseEntity.status(409).build();
         }
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Stadium> findById(@PathVariable Long id) {
-        Optional<Stadium> optionalStadium = stadiumRepository.findById(id);
-        if (optionalStadium.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        } else {
-            return ResponseEntity.ok(optionalStadium.get());
-        }
+    public ResponseEntity<StadiumEntity> findById(@PathVariable Long id) {
+        Optional<StadiumEntity> optionalStadium = stadiumRepository.findById(id);
+        return optionalStadium.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 }
+
