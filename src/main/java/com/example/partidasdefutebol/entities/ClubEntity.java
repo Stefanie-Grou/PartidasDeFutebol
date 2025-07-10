@@ -9,18 +9,14 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 
-import static com.example.partidasdefutebol.dto.BrazilianStates.isValidBrazilianState;
+import static com.example.partidasdefutebol.Enums.BrazilianStates.isValidBrazilianState;
 
 @Entity
-@Table(name = "clubs"
-        , uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"club_name", "stateAcronym"})}
-        )
 @NoArgsConstructor
 @AllArgsConstructor
 public class ClubEntity {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Setter

@@ -8,16 +8,14 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import static com.example.partidasdefutebol.dto.BrazilianStates.isValidBrazilianState;
+import static com.example.partidasdefutebol.Enums.BrazilianStates.isValidBrazilianState;
 
 @Entity
-@Table(name = "stadiums", uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"stadiumName", "stadiumState"})})
 @AllArgsConstructor
 @NoArgsConstructor
 public class StadiumEntity {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Getter
     @Setter
     private Long stadiumId;
