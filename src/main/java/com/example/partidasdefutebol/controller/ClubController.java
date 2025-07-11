@@ -1,89 +1,75 @@
 package com.example.partidasdefutebol.controller;
 
 import com.example.partidasdefutebol.entities.ClubEntity;
-import com.example.partidasdefutebol.repository.ClubRepository;
 import com.example.partidasdefutebol.service.ClubService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Optional;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("/clube")
 public class ClubController {
     @Autowired
-    private ClubRepository clubRepository;
+    private ClubService clubService;
 
     @PostMapping
-    public ResponseEntity<ClubEntity> save(@Valid @RequestBody ClubEntity clubEntity) {
+    public ResponseEntity<ClubEntity> createClub(@Valid @RequestBody ClubEntity clubEntity) {
         try {
-            ClubEntity savedClubEntity = clubRepository.save(clubEntity);
+            ClubEntity savedClubEntity = clubService.createClub(clubEntity);
             return ResponseEntity.status(201).body(savedClubEntity);
         } catch (Exception e) {
-            return ResponseEntity.status(409).build();
+            throw new ResponseStatusException(HttpStatus.CONFLICT);
         }
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> update(@PathVariable Long id, @RequestBody ClubEntity requestedToUpdateClubEntity) {
-        Optional<ClubEntity> clubOptional = clubRepository.findById(id);
-        if (clubOptional.isEmpty()) {
-            return ResponseEntity.status(404).build();
-        }
-        ClubEntity existingClubEntity = clubOptional.get();
-        existingClubEntity.setClubName(requestedToUpdateClubEntity.getClubName());
-        existingClubEntity.setStateAcronym(requestedToUpdateClubEntity.getStateAcronym());
-        existingClubEntity.setCreatedOn(requestedToUpdateClubEntity.getCreatedOn());
-        existingClubEntity.setIsActive(requestedToUpdateClubEntity.getIsActive());
+    public ResponseEntity<?> updateClub(@PathVariable Long id, @RequestBody ClubEntity requestedToUpdateClubEntity) {
         try {
-            ClubEntity updatedClubEntity = clubRepository.save(existingClubEntity);
-            return ResponseEntity.status(200).body(updatedClubEntity);
+            ClubEntity savedClubEntity = clubService.updateClub(id, requestedToUpdateClubEntity);
+            return ResponseEntity.status(201).body(savedClubEntity);
+        } catch (ResponseStatusException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         } catch (Exception e) {
-            return ResponseEntity.status(409).build();
+            throw new ResponseStatusException(HttpStatus.CONFLICT);
         }
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> delete(@PathVariable Long id) {
-        Optional<ClubEntity> clubOptional = clubRepository.findById(id);
-        if (clubOptional.isEmpty()) {
-            return ResponseEntity.status(404).build();
+    public ResponseEntity<?> deleteClub(@PathVariable Long id) {
+        try {
+            ClubEntity onDeletionClub = clubService.deleteClub(id);
+            return ResponseEntity.status(204).body(onDeletionClub);
+        } catch (ResponseStatusException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT);
         }
-        ClubEntity existingClubEntity = clubOptional.get();
-        clubOptional.get().setIsActive(false);
-        clubRepository.save(existingClubEntity);
-        return ResponseEntity.status(204).build();
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<ClubEntity> findById(@PathVariable Long id) {
-        Optional<ClubEntity> clubOptional = clubRepository.findById(id);
-        if (clubOptional.isEmpty()) {
-            return ResponseEntity.status(404).build();
+        try {
+            return ResponseEntity.status(200).body(clubService.findClubById(id));
+        } catch (ResponseStatusException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
-        ClubEntity existingClubEntity = clubOptional.get();
-        return ResponseEntity.status(200).body(existingClubEntity);
     }
 
-    @GetMapping("/listar")
-    public ResponseEntity<Page<ClubEntity>> findAll(
-            @RequestParam(value = "page", defaultValue = "0") int page,
-            @RequestParam(value = "size", defaultValue = "10") int size,
-            @RequestParam(value = "sort", defaultValue = "clubName") String sort,
-            @RequestParam(value = "order", defaultValue = "desc") String orderBy) {
+    @GetMapping
+    public ResponseEntity<Page<ClubEntity>> getClubs(
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) String state,
+            @RequestParam(required = false) Boolean isActive,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "clubName") String sortField,
+            @RequestParam(defaultValue = "asc") String sortOrder) {
 
-        Sort.Direction direction = "desc".equalsIgnoreCase(orderBy) ? Sort.Direction.DESC : Sort.Direction.ASC;
-        Sort sorting = Sort.by(direction, sort);
-        Page<ClubEntity> paginatedClubs = clubRepository.findAll(PageRequest.of(page, size, sorting));
-        if (paginatedClubs.isEmpty()) {
-            return ResponseEntity.status(404).build();
-        }
-        return ResponseEntity.ok(paginatedClubs);
+        Page<ClubEntity> clubs = clubService.getClubs(name, state, isActive, page, size, sortField, sortOrder);
+        return ResponseEntity.ok(clubs);
     }
 }
