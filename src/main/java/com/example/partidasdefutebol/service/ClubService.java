@@ -7,11 +7,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
-
-import java.util.Optional;
 
 @Service
 public class ClubService {
@@ -29,7 +26,6 @@ public class ClubService {
         }
     }
 
-    //Pedir ajuda ao Yudi
     public ClubEntity updateClub(Long id, ClubEntity requestedToUpdateClubEntity) {
         doesClubExist(id);
         ClubEntity clubEntity = clubRepository.findById(id).get();
