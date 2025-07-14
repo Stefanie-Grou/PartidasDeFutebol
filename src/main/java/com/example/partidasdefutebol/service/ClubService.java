@@ -10,6 +10,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDateTime;
+import java.time.chrono.ChronoLocalDate;
+
 @Service
 public class ClubService {
 
@@ -53,8 +56,22 @@ public class ClubService {
         if ("desc".equalsIgnoreCase(sortOrder)) {
             sort = sort.descending();
         }
-
         PageRequest pageRequest = PageRequest.of(page, size, sort);
         return clubRepository.findByFilters(name, state, isActive, pageRequest);
+    }
+
+    public void wasClubCreatedBeforeGame(ClubEntity homeClubEntity,
+                                           ClubEntity awayClubEntity,
+                                           LocalDateTime matchDate) {
+        if (homeClubEntity.getCreatedOn().isAfter(ChronoLocalDate.from(matchDate))
+                || awayClubEntity.getCreatedOn().isAfter(ChronoLocalDate.from(matchDate))) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT);
+        }
+    }
+
+    public void isAnyOfClubsInactive (ClubEntity homeClubEntity, ClubEntity awayClubCreationDate) {
+        if (!homeClubEntity.getIsActive() || !awayClubCreationDate.getIsActive()) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT);
+        }
     }
 }

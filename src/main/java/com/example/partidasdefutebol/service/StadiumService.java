@@ -12,6 +12,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -53,5 +55,11 @@ public class StadiumService {
 
         PageRequest pageRequest = PageRequest.of(page, size, sort);
         return stadiumRepository.findStadiumsByFilters(name, state, pageRequest);
+    }
+
+    public void doesStadiumExist(Long stadiumId) throws ResponseStatusException {
+        if (!stadiumRepository.existsById(stadiumId)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
     }
 }

@@ -1,4 +1,4 @@
-CREATE TABLE matches (
+CREATE TABLE match_entity (
                          match_id BIGINT NOT NULL AUTO_INCREMENT,
                          home_club_id BIGINT,
                          away_club_id BIGINT,
