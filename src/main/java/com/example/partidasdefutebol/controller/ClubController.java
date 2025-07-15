@@ -1,5 +1,6 @@
 package com.example.partidasdefutebol.controller;
 
+import com.example.partidasdefutebol.dto.GoalSummary;
 import com.example.partidasdefutebol.entities.ClubEntity;
 import com.example.partidasdefutebol.service.ClubService;
 import jakarta.validation.Valid;
@@ -9,6 +10,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/clube")
@@ -32,9 +35,9 @@ public class ClubController {
             ClubEntity savedClubEntity = clubService.updateClub(id, requestedToUpdateClubEntity);
             return ResponseEntity.status(201).body(savedClubEntity);
         } catch (ResponseStatusException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-        } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.CONFLICT);
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
     }
 
@@ -71,5 +74,11 @@ public class ClubController {
 
         Page<ClubEntity> clubs = clubService.getClubs(name, state, isActive, page, size, sortField, sortOrder);
         return ResponseEntity.ok(clubs);
+    }
+
+    @GetMapping("/retrospecto/{id}")
+    public ResponseEntity<GoalSummary> getClubRetrospective(@PathVariable Long id) {
+        GoalSummary goalSummary = clubService.getClubRetrospective(id);
+        return ResponseEntity.status(200).body(goalSummary);
     }
 }

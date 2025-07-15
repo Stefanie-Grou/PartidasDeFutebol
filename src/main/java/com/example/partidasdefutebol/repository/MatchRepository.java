@@ -23,8 +23,8 @@ public interface MatchRepository extends JpaRepository<MatchEntity, Long> {
     @Query("SELECT MAX(m.matchDate) FROM MatchEntity m WHERE m.awayClubId = ?1 AND m.matchDate <= ?2")
     LocalDateTime hoursSinceLastGameForAwayClub(Long clubId, LocalDateTime desiredMatchDate);
 
-    @Query("SELECT c FROM MatchEntity c WHERE (c.homeClubId = :club OR c.homeClubId IS NOT NULL) OR " +
-            "(c.awayClubId = :club OR c.awayClubId IS NOT NULL) OR (c.stadiumId = :stadium OR c.stadiumId IS NOT NULL)")
+    @Query("SELECT m FROM MatchEntity m WHERE (m.homeClubId = :club OR m.homeClubId IS NOT NULL) OR " +
+            "(m.awayClubId = :club OR m.awayClubId IS NOT NULL) OR (m.stadiumId = :stadium OR m.stadiumId IS NOT NULL)")
     Page<MatchEntity> findByFilters(@Param("club") Long club, @Param("stadium") Long stadium, Pageable pageable);
 }
 

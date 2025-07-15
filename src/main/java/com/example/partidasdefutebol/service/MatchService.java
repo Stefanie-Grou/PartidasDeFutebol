@@ -112,7 +112,7 @@ public class MatchService {
         if ("desc".equalsIgnoreCase(sortOrder)) {
             sort = sort.descending();
         }
-         PageRequest pageRequest = PageRequest.of(page, size, sort);
+        PageRequest pageRequest = PageRequest.of(page, size, sort);
         return matchRepository.findByFilters(club, stadium, pageRequest);
     }
 }
