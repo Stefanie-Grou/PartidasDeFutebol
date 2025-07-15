@@ -1,5 +1,6 @@
 package com.example.partidasdefutebol.controller;
 
+import com.example.partidasdefutebol.entities.ClubEntity;
 import com.example.partidasdefutebol.entities.MatchEntity;
 import com.example.partidasdefutebol.entities.StadiumEntity;
 import com.example.partidasdefutebol.service.MatchService;
@@ -39,6 +40,16 @@ public class MatchController {
             throw new ResponseStatusException(HttpStatus.CONFLICT);
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<MatchEntity> deleteMatch(@PathVariable Long id) {
+        try {
+            matchService.deleteMatch(id);
+            return ResponseEntity.noContent().build();
+        } catch (ResponseStatusException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
     }
 }

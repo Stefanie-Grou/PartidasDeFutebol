@@ -60,17 +60,15 @@ public class ClubService {
         return clubRepository.findByFilters(name, state, isActive, pageRequest);
     }
 
-    public void wasClubCreatedBeforeGame(ClubEntity homeClubEntity,
-                                           ClubEntity awayClubEntity,
+    public void wasClubCreatedBeforeGame(Long clubid,
                                            LocalDateTime matchDate) {
-        if (homeClubEntity.getCreatedOn().isAfter(ChronoLocalDate.from(matchDate))
-                || awayClubEntity.getCreatedOn().isAfter(ChronoLocalDate.from(matchDate))) {
+        if (clubRepository.findById(clubid).get().getCreatedOn().isAfter(ChronoLocalDate.from(matchDate))) {
             throw new ResponseStatusException(HttpStatus.CONFLICT);
         }
     }
 
-    public void isAnyOfClubsInactive (ClubEntity homeClubEntity, ClubEntity awayClubCreationDate) {
-        if (!homeClubEntity.getIsActive() || !awayClubCreationDate.getIsActive()) {
+    public void isAnyOfClubsInactive (ClubEntity homeClubEntity, ClubEntity awayClubEntity) {
+        if (!homeClubEntity.getIsActive() || !awayClubEntity.getIsActive()) {
             throw new ResponseStatusException(HttpStatus.CONFLICT);
         }
     }
