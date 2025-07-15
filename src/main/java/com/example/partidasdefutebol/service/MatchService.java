@@ -4,6 +4,9 @@ import com.example.partidasdefutebol.entities.ClubEntity;
 import com.example.partidasdefutebol.entities.MatchEntity;
 import com.example.partidasdefutebol.repository.MatchRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -99,4 +102,17 @@ public class MatchService {
         matchRepository.deleteById(matchId);
     }
 
+    public MatchEntity getMatchById(Long matchId) throws ResponseStatusException {
+        return matchRepository.findById(matchId).get();
+    }
+
+    public Page<MatchEntity> getMatches
+            (Long club, Long stadium, int page, int size, String sortField, String sortOrder) {
+        Sort sort = Sort.by(sortField);
+        if ("desc".equalsIgnoreCase(sortOrder)) {
+            sort = sort.descending();
+        }
+         PageRequest pageRequest = PageRequest.of(page, size, sort);
+        return matchRepository.findByFilters(club, stadium, pageRequest);
+    }
 }

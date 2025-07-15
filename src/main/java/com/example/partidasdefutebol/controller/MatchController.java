@@ -6,6 +6,7 @@ import com.example.partidasdefutebol.entities.StadiumEntity;
 import com.example.partidasdefutebol.service.MatchService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -51,5 +52,28 @@ public class MatchController {
         } catch (ResponseStatusException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<MatchEntity> getMatchById(@PathVariable Long id) {
+        try {
+            matchService.getMatchById(id);
+            return ResponseEntity.status(200).body(matchService.getMatchById(id));
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @GetMapping
+    public ResponseEntity<Page<MatchEntity>> getMatches(
+            @RequestParam(required = false) Long club,
+            @RequestParam(required = false) Long stadium,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "homeClubId") String sortField,
+            @RequestParam(defaultValue = "asc") String sortOrder) {
+
+        Page<MatchEntity> matches = matchService.getMatches(club, stadium, page, size, sortField, sortOrder);
+        return ResponseEntity.ok(matches);
     }
 }
