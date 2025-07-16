@@ -2,16 +2,13 @@ package com.example.partidasdefutebol.controller;
 
 import com.example.partidasdefutebol.dto.GoalSummary;
 import com.example.partidasdefutebol.entities.ClubEntity;
+import com.example.partidasdefutebol.exceptions.ConflictException;
 import com.example.partidasdefutebol.service.ClubService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/clube")
@@ -20,12 +17,12 @@ public class ClubController {
     private ClubService clubService;
 
     @PostMapping
-    public ResponseEntity<ClubEntity> createClub(@Valid @RequestBody ClubEntity clubEntity) {
+    public ResponseEntity<?> createClub(@Valid @RequestBody ClubEntity clubEntity) {
         try {
             ClubEntity savedClubEntity = clubService.createClub(clubEntity);
             return ResponseEntity.status(201).body(savedClubEntity);
-        } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT);
+        } catch (ConflictException e) {
+            return ResponseEntity.status(e.getStatusCode()).body(e.getMessage());
         }
     }
 
@@ -34,10 +31,8 @@ public class ClubController {
         try {
             ClubEntity savedClubEntity = clubService.updateClub(id, requestedToUpdateClubEntity);
             return ResponseEntity.status(201).body(savedClubEntity);
-        } catch (ResponseStatusException e) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT);
-        } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        } catch (ConflictException e) {
+            return ResponseEntity.status(e.getStatusCode()).body(e.getMessage());
         }
     }
 
@@ -46,19 +41,17 @@ public class ClubController {
         try {
             ClubEntity onDeletionClub = clubService.deleteClub(id);
             return ResponseEntity.status(204).body(onDeletionClub);
-        } catch (ResponseStatusException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-        } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT);
+        } catch (ConflictException e) {
+            return ResponseEntity.status(e.getStatusCode()).body(e.getMessage());
         }
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ClubEntity> findById(@PathVariable Long id) {
+    public ResponseEntity<?> findById(@PathVariable Long id) {
         try {
             return ResponseEntity.status(200).body(clubService.findClubById(id));
-        } catch (ResponseStatusException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        } catch (ConflictException e) {
+            return ResponseEntity.status(e.getStatusCode()).body(e.getMessage());
         }
     }
 

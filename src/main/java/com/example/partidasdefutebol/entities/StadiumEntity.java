@@ -1,5 +1,6 @@
 package com.example.partidasdefutebol.entities;
 
+import com.example.partidasdefutebol.exceptions.ConflictException;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -8,7 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import static com.example.partidasdefutebol.Enums.BrazilianStates.isValidBrazilianState;
+import static com.example.partidasdefutebol.enums.BrazilianStates.isValidBrazilianState;
 
 @Entity
 @AllArgsConstructor
@@ -36,7 +37,7 @@ public class StadiumEntity {
         if (isValidBrazilianState(stadiumState)) {
             this.stadiumState = stadiumState;
         } else {
-            throw new IllegalArgumentException();
+            throw new ConflictException("A sigla do estado é inválida.", 409);
         }
     }
 }

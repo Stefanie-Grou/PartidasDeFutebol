@@ -1,4 +1,4 @@
-package com.example.partidasdefutebol.Enums;
+package com.example.partidasdefutebol.enums;
 
 public enum BrazilianStates {
     AC,

@@ -20,7 +20,7 @@ public interface ClubRepository extends JpaRepository<ClubEntity, Long> {
             + "(c.isActive = :isActive OR :isActive IS NULL)")
     Page<ClubEntity> findByFilters(String name, String state, Boolean isActive, Pageable pageable);
 
-    @Query("SELECT CASE WHEN COUNT(m.matchDate) > 0 THEN true ELSE false END FROM MatchEntity m " +
+    @Query("SELECT CASE WHEN COUNT(m.matchDate) = 0 THEN true ELSE false END FROM MatchEntity m " +
             "WHERE (m.awayClubId = ?2 OR m.homeClubId <= ?2) AND m.matchDate <= ?1")
     Boolean wasClubCreatedAfterGame(LocalDateTime newClubCreatedDate, Long clubId);
 

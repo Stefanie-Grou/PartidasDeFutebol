@@ -2,6 +2,7 @@ package com.example.partidasdefutebol.service;
 
 import com.example.partidasdefutebol.dto.GoalSummary;
 import com.example.partidasdefutebol.entities.ClubEntity;
+import com.example.partidasdefutebol.exceptions.ConflictException;
 import com.example.partidasdefutebol.repository.ClubRepository;
 import com.example.partidasdefutebol.repository.MatchRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +15,6 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.time.chrono.ChronoLocalDate;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -32,7 +32,7 @@ public class ClubService {
 
     public void doesClubExist(Long clubId) throws ResponseStatusException {
         if (!clubRepository.existsById(clubId)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+            throw new ConflictException("Clube não encontrado na base de dados.", 404);
         }
     }
 
@@ -81,10 +81,11 @@ public class ClubService {
         }
     }
 
-    public void wasClubCreatedAfterGame(Long id, ClubEntity clubEntity) throws ResponseStatusException {
-        Boolean isClubUpToUpdateCreatedOn = clubRepository.wasClubCreatedAfterGame(clubEntity.getCreatedOn().atStartOfDay(), id);
+    public void wasClubCreatedAfterGame(Long clubId, ClubEntity clubEntity) throws ResponseStatusException {
+        Boolean isClubUpToUpdateCreatedOn = clubRepository.wasClubCreatedAfterGame(
+                clubEntity.getCreatedOn().atStartOfDay(), clubId);
         if (!isClubUpToUpdateCreatedOn) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT);
+            throw new ConflictException("A nova data de criação do clube está posterior ao registro de alguma partida cadastrada.", 407);
         }
     }
 
