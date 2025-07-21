@@ -27,10 +27,10 @@ public class ClubController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateClub(@PathVariable Long id, @RequestBody ClubEntity requestedToUpdateClubEntity) {
+    public ResponseEntity<?> updateClub(@PathVariable Long id, @Valid @RequestBody ClubEntity requestedToUpdateClubEntity) {
         try {
             ClubEntity savedClubEntity = clubService.updateClub(id, requestedToUpdateClubEntity);
-            return ResponseEntity.status(201).body(savedClubEntity);
+            return ResponseEntity.status(200).body(savedClubEntity);
         } catch (ConflictException e) {
             return ResponseEntity.status(e.getStatusCode()).body(e.getMessage());
         }

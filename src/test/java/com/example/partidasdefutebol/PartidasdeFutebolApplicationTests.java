@@ -1,14 +1,14 @@
 package com.example.partidasdefutebol;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.boot.test.context.SpringBootTest;
 
+@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 class PartidasdeFutebolApplicationTests {
-
     @Test
-    public void dbInputTest() {
-        //Testing club creation
-        //Club club = new Club("SPFC","SP", LocalDate.now(),true);
-        //System.out.println(club.toString());
-
+    void contextLoads() {
     }
 }

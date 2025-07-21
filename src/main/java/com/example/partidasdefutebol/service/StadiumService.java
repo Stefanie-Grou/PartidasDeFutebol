@@ -2,6 +2,7 @@ package com.example.partidasdefutebol.service;
 
 import com.example.partidasdefutebol.entities.ClubEntity;
 import com.example.partidasdefutebol.entities.StadiumEntity;
+import com.example.partidasdefutebol.exceptions.ConflictException;
 import com.example.partidasdefutebol.repository.StadiumRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -16,6 +17,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import static com.example.partidasdefutebol.util.isValidBrazilianState.isValidBrazilianState;
+
 @Service
 public class StadiumService {
 
@@ -23,13 +26,16 @@ public class StadiumService {
     private StadiumRepository stadiumRepository;
 
     public StadiumEntity saveStadium(StadiumEntity stadiumEntity) {
+        if (!isValidBrazilianState(stadiumEntity.getStadiumState())) {
+            throw new ConflictException("A sigla do estado é inválida.", 409);
+        }
         return stadiumRepository.save(stadiumEntity);
     }
 
     public StadiumEntity updateStadium(
             Long stadiumId,
             StadiumEntity requestedToUpdateStadiumEntity) {
-        stadiumRepository.findById(stadiumId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        doesStadiumExist(stadiumId);
         StadiumEntity existingStadiumEntity = stadiumRepository.findById(stadiumId).get();
         existingStadiumEntity.setStadiumName(requestedToUpdateStadiumEntity.getStadiumName());
         existingStadiumEntity.setStadiumState(requestedToUpdateStadiumEntity.getStadiumState());
@@ -42,7 +48,7 @@ public class StadiumService {
             StadiumEntity stadiumEntity = optionalStadium.get();
             return ResponseEntity.ok(stadiumEntity);
         } else {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+            throw new ConflictException("O estádio não foi encontrado na base de dados.", 404);
         }
     }
 
@@ -59,7 +65,7 @@ public class StadiumService {
 
     public void doesStadiumExist(Long stadiumId) throws ResponseStatusException {
         if (!stadiumRepository.existsById(stadiumId)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+            throw new ConflictException("O estádio nao foi encontrado na base de dados.", 404);
         }
     }
 }

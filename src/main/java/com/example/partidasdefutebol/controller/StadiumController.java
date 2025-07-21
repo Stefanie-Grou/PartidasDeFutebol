@@ -1,14 +1,13 @@
 package com.example.partidasdefutebol.controller;
 
 import com.example.partidasdefutebol.entities.StadiumEntity;
+import com.example.partidasdefutebol.exceptions.ConflictException;
 import com.example.partidasdefutebol.service.StadiumService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("/estadio")
@@ -17,38 +16,36 @@ public class StadiumController {
     private StadiumService stadiumService;
 
     @PostMapping
-    public ResponseEntity<StadiumEntity> save(@Valid @RequestBody StadiumEntity stadiumEntity) {
+    public ResponseEntity<?> save(@Valid @RequestBody StadiumEntity stadiumEntity) {
         try {
             StadiumEntity savedStadiumEntity = stadiumService.saveStadium(stadiumEntity);
             return ResponseEntity.status(201).body(savedStadiumEntity);
-        } catch (Exception e) {
-            return ResponseEntity.status(409).build();
+        } catch (ConflictException e) {
+            return ResponseEntity.status(e.getStatusCode()).body(e.getMessage());
         }
     }
 
     @PutMapping
     @RequestMapping("/{id}")
-    public ResponseEntity<StadiumEntity> update(
+    public ResponseEntity<?> update(
             @PathVariable Long id,
             @Valid @RequestBody StadiumEntity requestedToUpdateStadiumEntity
     ) {
         try {
             StadiumEntity updatedStadiumEntity = stadiumService.updateStadium(id, requestedToUpdateStadiumEntity);
             return ResponseEntity.status(200).body(updatedStadiumEntity);
-        } catch (ResponseStatusException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-        } catch (Exception e) {
-            return ResponseEntity.status(409).build();
+        } catch (ConflictException e) {
+            return ResponseEntity.status(e.getStatusCode()).body(e.getMessage());
         }
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<StadiumEntity> findById(@PathVariable Long id) {
+    public ResponseEntity<?> findById(@PathVariable Long id) {
         try {
             ResponseEntity<StadiumEntity> optionalStadium = stadiumService.retrieveStadiumInfo(id);
             return ResponseEntity.status(optionalStadium.getStatusCode()).body(optionalStadium.getBody());
-        } catch (ResponseStatusException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        } catch (ConflictException e) {
+            return ResponseEntity.status(e.getStatusCode()).body(e.getMessage());
         }
     }
 

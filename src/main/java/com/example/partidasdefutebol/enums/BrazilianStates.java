@@ -28,17 +28,6 @@ public enum BrazilianStates {
     SP,
     SE,
     TO;
-
-    private String stateAcronymEnum;
-
-    public static boolean isValidBrazilianState(String stateAcronym) {
-        for (BrazilianStates estado : BrazilianStates.values()) {
-            if (estado.name().equalsIgnoreCase(stateAcronym)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
 }
+
 

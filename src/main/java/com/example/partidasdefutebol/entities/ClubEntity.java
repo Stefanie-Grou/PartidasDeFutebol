@@ -1,6 +1,5 @@
 package com.example.partidasdefutebol.entities;
 
-import com.example.partidasdefutebol.exceptions.ConflictException;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
@@ -9,8 +8,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
-
-import static com.example.partidasdefutebol.enums.BrazilianStates.isValidBrazilianState;
 
 @Entity
 @NoArgsConstructor
@@ -28,8 +25,9 @@ public class ClubEntity {
     private String clubName;
 
     @Getter
+    @Setter
     @NotBlank(message = "O estado do clube é mandatório para o cadastro")
-    @Size(min = 2, max = 2, message = "Entre com a sigla do estado, composta por duas letras")
+    @Size(min = 2, max = 2, message = "O estado do clube deve ser composto por duas letras.")
     private String stateAcronym;
 
     @Setter
@@ -40,12 +38,4 @@ public class ClubEntity {
     @Setter
     @Getter
     private Boolean isActive;
-
-    public void setStateAcronym(String stateAcronym) {
-        if (isValidBrazilianState(stateAcronym)) {
-            this.stateAcronym = stateAcronym;
-        } else {
-            throw new ConflictException("A sigla do estado é inválida.", 409);
-        }
-    }
 }
