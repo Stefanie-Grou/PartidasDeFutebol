@@ -1,8 +1,7 @@
 package com.example.partidasdefutebol.controller;
 
-import com.example.partidasdefutebol.entities.ClubEntity;
 import com.example.partidasdefutebol.entities.MatchEntity;
-import com.example.partidasdefutebol.entities.StadiumEntity;
+import com.example.partidasdefutebol.exceptions.ConflictException;
 import com.example.partidasdefutebol.service.MatchService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,22 +44,22 @@ public class MatchController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<MatchEntity> deleteMatch(@PathVariable Long id) {
+    public ResponseEntity<?> deleteMatch(@PathVariable Long id) {
         try {
             matchService.deleteMatch(id);
             return ResponseEntity.noContent().build();
-        } catch (ResponseStatusException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        } catch (ConflictException e) {
+            throw new ConflictException(e.getMessage(), e.getStatusCode());
         }
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<MatchEntity> getMatchById(@PathVariable Long id) {
+    public ResponseEntity<?> getMatchById(@PathVariable Long id) {
         try {
             matchService.getMatchById(id);
             return ResponseEntity.status(200).body(matchService.getMatchById(id));
-        } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        } catch (ConflictException e) {
+            return ResponseEntity.status(e.getStatusCode()).body(e.getMessage());
         }
     }
 

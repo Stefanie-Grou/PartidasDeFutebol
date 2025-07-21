@@ -4,7 +4,6 @@ import com.example.partidasdefutebol.dto.GoalSummary;
 import com.example.partidasdefutebol.entities.ClubEntity;
 import com.example.partidasdefutebol.exceptions.ConflictException;
 import com.example.partidasdefutebol.repository.ClubRepository;
-import com.example.partidasdefutebol.repository.MatchRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -18,15 +17,18 @@ import java.time.chrono.ChronoLocalDate;
 import java.util.Collections;
 import java.util.List;
 
+import static com.example.partidasdefutebol.util.isValidBrazilianState.isValidBrazilianState;
+
 @Service
 public class ClubService {
 
     @Autowired
     private ClubRepository clubRepository;
-    @Autowired
-    private MatchRepository matchRepository;
 
     public ClubEntity createClub(ClubEntity clubEntity) {
+        if (!isValidBrazilianState(clubEntity.getStateAcronym())) {
+            throw new ConflictException("A sigla do estado é inválida.", 409);
+        }
         return clubRepository.save(clubEntity);
     }
 
@@ -75,9 +77,9 @@ public class ClubService {
         }
     }
 
-    public void isAnyOfClubsInactive(ClubEntity homeClubEntity, ClubEntity awayClubEntity) {
-        if (!homeClubEntity.getIsActive() || !awayClubEntity.getIsActive()) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT);
+    public void isClubInactive(ClubEntity clubEntity) {
+        if (!clubEntity.getIsActive()) {
+            throw new ConflictException("O clube " + clubEntity.getClubName() + " está inativo", 409);
         }
     }
 
@@ -93,9 +95,9 @@ public class ClubService {
         List matchResultsByClub = clubRepository.findMatchResultsByClubId(id);
         Integer positiveGoals = clubRepository.findTotalPositiveGoalsByClubId(id);
         Integer negativeGoals = clubRepository.findTotalNegativeGoalsByClubId(id);
-        Integer totalOfVictories = Collections.frequency(matchResultsByClub,"vitória");
-        Integer totalOfDraws = Collections.frequency(matchResultsByClub,"empate");
-        Integer totalOfDefeats = Collections.frequency(matchResultsByClub,"derrota");
-        return new GoalSummary(positiveGoals,negativeGoals, totalOfVictories,totalOfDraws,totalOfDefeats);
+        Integer totalOfVictories = Collections.frequency(matchResultsByClub, "vitória");
+        Integer totalOfDraws = Collections.frequency(matchResultsByClub, "empate");
+        Integer totalOfDefeats = Collections.frequency(matchResultsByClub, "derrota");
+        return new GoalSummary(positiveGoals, negativeGoals, totalOfVictories, totalOfDraws, totalOfDefeats);
     }
 }

@@ -2,6 +2,7 @@ package com.example.partidasdefutebol.service;
 
 import com.example.partidasdefutebol.entities.ClubEntity;
 import com.example.partidasdefutebol.entities.MatchEntity;
+import com.example.partidasdefutebol.exceptions.ConflictException;
 import com.example.partidasdefutebol.repository.MatchRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -32,8 +33,10 @@ public class MatchService {
         isEachClubDifferent(matchEntity);
         clubService.wasClubCreatedBeforeGame(matchEntity.getHomeClubId(), matchEntity.getMatchDate());
         clubService.wasClubCreatedBeforeGame(matchEntity.getAwayClubId(), matchEntity.getMatchDate());
-        clubService.isAnyOfClubsInactive(clubService.findClubById(matchEntity.getHomeClubId()),
-                clubService.findClubById(matchEntity.getAwayClubId()));
+        clubService.isClubInactive(clubService.findClubById(matchEntity.getHomeClubId()));
+        clubService.isClubInactive(clubService.findClubById(matchEntity.getAwayClubId()));
+        clubService.isClubInactive(clubService.findClubById(matchEntity.getHomeClubId()));
+        clubService.isClubInactive(clubService.findClubById(matchEntity.getAwayClubId()));
         stadiumService.doesStadiumExist(matchEntity.getStadiumId());
 
         return matchRepository.save(matchEntity);
@@ -41,13 +44,13 @@ public class MatchService {
 
     public void isEachClubDifferent(MatchEntity matchEntity) {
         if (Objects.equals(matchEntity.getAwayClubId(), matchEntity.getHomeClubId())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+            throw new ConflictException("Os clubes devem ser diferentes", 400);
         }
     }
 
     public void stadiumIsFreeForMatchOnDay(Long stadiumId, LocalDateTime desiredMatchDate) throws ResponseStatusException {
         if (!matchRepository.findByStadiumAndDate(stadiumId, desiredMatchDate).isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT);
+            throw new ConflictException("O estádio não está livre na data desejada", 409);
         }
     }
 
@@ -55,7 +58,7 @@ public class MatchService {
         final int restPeriodInHoursIs = 48;
         LocalDateTime lastGameForHomeClubWasIn = matchRepository.hoursSinceLastGameForHomeClub(homeClubId, desiredMatchDate);
         if (Duration.between(lastGameForHomeClubWasIn, desiredMatchDate).toHours() < restPeriodInHoursIs) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT);
+            throw new ConflictException("O descanso mínimo para o clube é de 48 horas", 409);
         }
     }
 
@@ -63,7 +66,7 @@ public class MatchService {
         final int restPeriodInHoursIs = 48;
         LocalDateTime lastGameForHomeClubWasIn = matchRepository.hoursSinceLastGameForAwayClub(homeClubId, desiredMatchDate);
         if (Duration.between(lastGameForHomeClubWasIn, desiredMatchDate).toHours() < restPeriodInHoursIs) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT);
+            throw new ConflictException("O descanso mínimo para o clube é de 48 horas", 409);
         }
     }
 
@@ -83,7 +86,7 @@ public class MatchService {
 
     public void validateIfNewMatchDateIsInTheFuture(MatchEntity requestedToUpdateMatchEntity) throws ResponseStatusException {
         if (requestedToUpdateMatchEntity.getMatchDate().isAfter(LocalDateTime.now())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+            throw new ConflictException("A data da partida não pode ser posterior ao dia atual.", 400);
         }
     }
 
@@ -91,18 +94,24 @@ public class MatchService {
         isEachClubDifferent(matchEntity);
         clubService.wasClubCreatedBeforeGame(matchEntity.getHomeClubId(), matchEntity.getMatchDate());
         clubService.wasClubCreatedBeforeGame(matchEntity.getAwayClubId(), matchEntity.getMatchDate());
-        clubService.isAnyOfClubsInactive(clubService.findClubById(matchEntity.getHomeClubId()),
-                clubService.findClubById(matchEntity.getAwayClubId()));
+        clubService.isClubInactive(clubService.findClubById(matchEntity.getHomeClubId()));
+        clubService.isClubInactive(clubService.findClubById(matchEntity.getAwayClubId()));
         stadiumIsFreeForMatchOnDay(matchEntity.getStadiumId(), matchEntity.getMatchDate());
         checkHomeClubRestPeriod(matchEntity.getHomeClubId(), matchEntity.getMatchDate());
         checkAwayClubRestPeriod(matchEntity.getAwayClubId(), matchEntity.getMatchDate());
     }
 
     public void deleteMatch(Long matchId) throws ResponseStatusException {
+        if (matchRepository.findById(matchId).isEmpty()) {
+            throw new ConflictException("A partida não existe na base de dados.", 404);
+        }
         matchRepository.deleteById(matchId);
     }
 
     public MatchEntity getMatchById(Long matchId) throws ResponseStatusException {
+        if (matchRepository.findById(matchId).isEmpty()) {
+            throw new ConflictException("A partida não existe na base de dados.", 404);
+        }
         return matchRepository.findById(matchId).get();
     }
 
@@ -115,4 +124,5 @@ public class MatchService {
         PageRequest pageRequest = PageRequest.of(page, size, sort);
         return matchRepository.findByFilters(club, stadium, pageRequest);
     }
+
 }
