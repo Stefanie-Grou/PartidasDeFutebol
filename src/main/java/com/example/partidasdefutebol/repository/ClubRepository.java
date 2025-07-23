@@ -34,14 +34,58 @@ public interface ClubRepository extends JpaRepository<ClubEntity, Long> {
     List<String> findMatchResultsByClubId(@Param("clubId") Long clubId);
 
     @Query("SELECT " +
-            "SUM(CASE WHEN m.homeClubId = ?1 THEN m.homeClubNumberOfGoals ELSE m.awayClubNumberOfGoals END) AS totalGolsFeitos " +
+            "COALESCE(SUM(CASE WHEN m.homeClubId = ?1 THEN m.homeClubNumberOfGoals " +
+            "ELSE m.awayClubNumberOfGoals END),0) AS totalGolsFeitos " +
             "FROM MatchEntity m " +
             "WHERE m.homeClubId = :clubId OR m.awayClubId = :clubId")
     Integer findTotalPositiveGoalsByClubId(@Param("clubId") Long clubId);
 
     @Query("SELECT " +
-            "SUM(CASE WHEN m.homeClubId = ?1 THEN m.awayClubNumberOfGoals ELSE m.homeClubNumberOfGoals END) AS totalGolsSofridos " +
+            "COALESCE(SUM(CASE WHEN m.homeClubId = ?1 THEN m.awayClubNumberOfGoals " +
+            "ELSE m.homeClubNumberOfGoals END),0) AS totalGolsSofridos " +
             "FROM MatchEntity m " +
             "WHERE m.homeClubId = :clubId OR m.awayClubId = :clubId")
     Integer findTotalNegativeGoalsByClubId(@Param("clubId") Long clubId);
+
+    @Query("SELECT " +
+            "    CASE " +
+            "        WHEN m.homeClubId = :clubId THEN v.clubName " +
+            "        ELSE d.clubName " +
+            "    END AS adv, " +
+            "    COUNT(m) AS totalPartidas, " +
+            "    SUM(CASE " +
+            "        WHEN (m.homeClubId = :clubId AND m.homeClubNumberOfGoals > m.awayClubNumberOfGoals) OR " +
+            "             (m.awayClubId = :clubId AND m.awayClubNumberOfGoals > m.homeClubNumberOfGoals) " +
+            "        THEN 1 " +
+            "        ELSE 0 " +
+            "    END) AS vitoria, " +
+            "    SUM(CASE " +
+            "        WHEN (m.homeClubNumberOfGoals = m.awayClubNumberOfGoals) THEN 1 " +
+            "        ELSE 0 " +
+            "    END) AS empate, " +
+            "    SUM(CASE " +
+            "        WHEN (m.homeClubId = :clubId AND m.homeClubNumberOfGoals < m.awayClubNumberOfGoals) OR " +
+            "             (m.awayClubId = :clubId AND m.awayClubNumberOfGoals < m.homeClubNumberOfGoals) " +
+            "        THEN 1 " +
+            "        ELSE 0 " +
+            "    END) AS derrota, " +
+            "    SUM(CASE " +
+            "        WHEN m.homeClubId = :clubId THEN m.homeClubNumberOfGoals " +
+            "        ELSE m.awayClubNumberOfGoals " +
+            "    END) AS golsFeitos, " +
+            "    SUM(CASE " +
+            "        WHEN m.homeClubId = :clubId THEN m.awayClubNumberOfGoals " +
+            "        ELSE m.homeClubNumberOfGoals " +
+            "    END) AS golsSofridos " +
+            "FROM " +
+            "    MatchEntity m " +
+            "JOIN " +
+            "    ClubEntity d ON m.homeClubId = d.id " +
+            "JOIN " +
+            "    ClubEntity v ON m.awayClubId = v.id " +
+            "WHERE " +
+            "    m.homeClubId = :clubId OR m.awayClubId = :clubId " +
+            "GROUP BY " +
+            "    adv ")
+    List<Object[]> findClubRetrospectiveByIdAndOpponent(@Param("clubId") Long clubId);
 }

@@ -1,6 +1,7 @@
 package com.example.partidasdefutebol.tests.club;
 
 import com.example.partidasdefutebol.controller.ClubController;
+import com.example.partidasdefutebol.dto.GoalSummary;
 import com.example.partidasdefutebol.entities.ClubEntity;
 import com.example.partidasdefutebol.exceptions.ConflictException;
 import com.example.partidasdefutebol.service.ClubService;
@@ -151,12 +152,11 @@ public class ClubControllerTest {
     @Transactional
     public void shouldUpdateClub_AllValidData() throws Exception {
         Long clubId = 80L;
-        ClubEntity clubEntity = clubService.findClubById(clubId);
 
         ClubEntity updatedClubEntity = new ClubEntity();
         updatedClubEntity.setClubName("Palmeiras");
         updatedClubEntity.setStateAcronym("SP");
-        updatedClubEntity.setCreatedOn(LocalDate.of(2024, 1, 1));
+        updatedClubEntity.setCreatedOn(LocalDate.of(1990, 1, 1));
         updatedClubEntity.setIsActive(true);
 
         MvcResult mvcResult = mockMvc.perform(put("/clube/{id}", clubId)
@@ -167,7 +167,7 @@ public class ClubControllerTest {
         assertThat(mvcResult.getResponse().getStatus()).isEqualTo(200);
         assertThat(mvcResult.getResponse().getContentAsString()).contains("Palmeiras");
         assertThat(mvcResult.getResponse().getContentAsString()).contains("SP");
-        assertThat(mvcResult.getResponse().getContentAsString()).contains("2024-01-01");
+        assertThat(mvcResult.getResponse().getContentAsString()).contains("1990-01-01");
         assertThat(mvcResult.getResponse().getContentAsString()).contains("true");
     }
 
@@ -253,9 +253,8 @@ public class ClubControllerTest {
                 .andReturn();
         //These aren't everything I'm expecting as a response, but it's enough for now
         assertThat(mvcResult.getResponse().getStatus()).isEqualTo(200);
-        assertThat(mvcResult.getResponse().getContentAsString()).contains("Pop");
+        assertThat(mvcResult.getResponse().getContentAsString()).contains("Ibis");
         assertThat(mvcResult.getResponse().getContentAsString()).contains("SP");
-        assertThat(mvcResult.getResponse().getContentAsString()).contains("2024-01-01");
         assertThat(mvcResult.getResponse().getContentAsString()).contains("true");
     }
 
@@ -270,5 +269,20 @@ public class ClubControllerTest {
         assertThat(response).contains("PR");
         assertThat(response).contains("MT");
         assertThat(response).contains("PA");
+    }
+
+    @Test
+    public void shouldRetrieveClubRetrospectiveSucessfully() throws Exception {
+        MvcResult mvcResult = mockMvc.perform(get("/clube/retrospecto/1"))
+                .andReturn();
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(200);
+
+        GoalSummary goalSummary =
+                new ObjectMapper().readValue(mvcResult.getResponse().getContentAsString(), GoalSummary.class);
+        assertThat(goalSummary.getTotalOfPositiveGoals()).isEqualTo(25);
+        assertThat(goalSummary.getTotalOfNegativeGoals()).isEqualTo(13);
+        assertThat(goalSummary.getTotalOfVictories()).isEqualTo(7);
+        assertThat(goalSummary.getTotalOfDraws()).isEqualTo(1);
+        assertThat(goalSummary.getTotalOfDefeats()).isEqualTo(1);
     }
 }

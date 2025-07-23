@@ -27,7 +27,9 @@ public class StadiumEntity {
     @NotBlank(message = "O estado do estádio é mandatório para o cadastro")
     @Size(min = 2, max = 2, message = "O estado do estadio deve ser composto por 2 letras.")
     @Getter
-    @Setter
     private String stadiumState;
 
+    public void setStadiumState(String stadiumState) {
+        this.stadiumState = stadiumState.toUpperCase();
+    }
 }

@@ -5,6 +5,7 @@ import com.example.partidasdefutebol.entities.StadiumEntity;
 import com.example.partidasdefutebol.exceptions.ConflictException;
 import com.example.partidasdefutebol.repository.StadiumRepository;
 import com.example.partidasdefutebol.service.StadiumService;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import jakarta.transaction.Transactional;
@@ -52,7 +53,7 @@ public class stadiumControllerTest {
     @Test
     public void shouldCreateStadiumSucessfully() throws Exception {
         StadiumEntity stadiumEntity = new StadiumEntity();
-        String stadiumName = "Nacional" + LocalDateTime.now().getSecond();
+        String stadiumName = "Nacional" + LocalDateTime.now();
         stadiumEntity.setStadiumName(stadiumName);
         stadiumEntity.setStadiumState("AC");
 
@@ -129,4 +130,14 @@ public class stadiumControllerTest {
         assertThat(mvcResult.getResponse().getStatus()).isEqualTo(404);
         assertThat(mvcResult.getResponse().getContentAsString()).contains("O estádio não foi encontrado na base de dados.");
     }
+
+    @Test
+    public void shouldRetrieveFilteredStadiums() throws Exception {
+        MvcResult mvcResult = mockMvc.perform(get("/estadio?state=SP"))
+                .andReturn();
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(200);
+        assertThat(mvcResult.getResponse().getContentAsString()).contains("Nacional");
+        assertThat(mvcResult.getResponse().getContentAsString()).contains("SP");
+    }
+
 }

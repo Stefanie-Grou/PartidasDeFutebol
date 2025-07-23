@@ -1,5 +1,6 @@
 package com.example.partidasdefutebol.tests.club;
 
+import com.example.partidasdefutebol.dto.GoalSummary;
 import com.example.partidasdefutebol.entities.ClubEntity;
 import com.example.partidasdefutebol.exceptions.ConflictException;
 import jakarta.transaction.Transactional;
@@ -9,6 +10,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -110,5 +112,33 @@ public class ClubServiceTest {
         assertThat(exception.getStatusCode()).isEqualTo(409);
         String expectedExceptionMessage = "O clube " + clubEntity.getClubName() + " está inativo";
         assertThat(exception.getMessage()).isEqualTo(expectedExceptionMessage);
+    }
+
+    @Test
+    public void throwsException_ClubCreationIsPastMatchDate() {
+        Long clubId = 3L;
+        String clubName = clubService.findClubById(clubId).getClubName();
+        LocalDateTime clubCreationDate =
+                clubService.findClubById(clubId).getCreatedOn().minusMonths(1).atStartOfDay();
+
+        ConflictException exception = assertThrows(ConflictException.class, () -> {
+            clubService.wasClubCreatedBeforeGame(clubId, clubCreationDate);
+        });
+        assertThat(exception.getStatusCode()).isEqualTo(409);
+        String expectedExceptionMessage = "A data de criação do clube " + clubName +
+                " deve ser anterior ao registro de alguma partida cadastrada.";
+        assertThat(exception.getMessage()).isEqualTo(expectedExceptionMessage);
+    }
+
+    @Test
+    public void getClubInfomartionSucessfully() {
+        Long clubId = 1L;
+        GoalSummary goalSummary = clubService.getClubRetrospective(clubId);
+        assertThat(goalSummary).isNotNull();
+        assertThat(goalSummary.getTotalOfPositiveGoals()).isEqualTo(25);
+        assertThat(goalSummary.getTotalOfNegativeGoals()).isEqualTo(13);
+        assertThat(goalSummary.getTotalOfVictories()).isEqualTo(7);
+        assertThat(goalSummary.getTotalOfDraws()).isEqualTo(1);
+        assertThat(goalSummary.getTotalOfDefeats()).isEqualTo(1);
     }
 }

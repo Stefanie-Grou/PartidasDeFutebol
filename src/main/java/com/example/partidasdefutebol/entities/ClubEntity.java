@@ -25,7 +25,6 @@ public class ClubEntity {
     private String clubName;
 
     @Getter
-    @Setter
     @NotBlank(message = "O estado do clube é mandatório para o cadastro")
     @Size(min = 2, max = 2, message = "O estado do clube deve ser composto por duas letras.")
     private String stateAcronym;
@@ -38,4 +37,8 @@ public class ClubEntity {
     @Setter
     @Getter
     private Boolean isActive;
+
+    public void setStateAcronym(String stateAcronym) {
+        this.stateAcronym = stateAcronym.toUpperCase();
+    }
 }

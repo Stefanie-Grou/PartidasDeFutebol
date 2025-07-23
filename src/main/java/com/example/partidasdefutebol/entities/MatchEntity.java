@@ -17,6 +17,7 @@ import java.time.LocalDateTime;
 public class MatchEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Getter
     private Long matchId;
 
     @NotNull

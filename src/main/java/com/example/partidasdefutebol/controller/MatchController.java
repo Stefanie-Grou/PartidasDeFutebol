@@ -6,10 +6,8 @@ import com.example.partidasdefutebol.service.MatchService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("/partida")
@@ -23,10 +21,8 @@ public class MatchController {
         try {
             MatchEntity savedMatchEntity = matchService.createMatch(matchEntity);
             return ResponseEntity.status(201).body(savedMatchEntity);
-        } catch (ResponseStatusException ex) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT);
-        } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        } catch (ConflictException e) {
+            throw new ConflictException(e.getMessage(), e.getStatusCode());
         }
     }
 
@@ -36,10 +32,8 @@ public class MatchController {
         try {
             MatchEntity updatedMatchEntity = matchService.updateMatch(id, requestedToUpdateMatchEntity);
             return ResponseEntity.status(200).body(updatedMatchEntity);
-        } catch (ResponseStatusException ex) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT);
-        } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        } catch (ConflictException e) {
+            throw new ConflictException(e.getMessage(), e.getStatusCode());
         }
     }
 
@@ -74,5 +68,14 @@ public class MatchController {
 
         Page<MatchEntity> matches = matchService.getMatches(club, stadium, page, size, sortField, sortOrder);
         return ResponseEntity.ok(matches);
+    }
+
+    @GetMapping("/{id1}/versus/{id2}")
+    public ResponseEntity<?> getMatchBetweenClubs(@PathVariable Long id1, @PathVariable Long id2) {
+        try {
+            return ResponseEntity.status(200).body(matchService.getMatchBetweenClubs(id1, id2));
+        } catch (ConflictException e) {
+            return ResponseEntity.status(e.getStatusCode()).body(e.getMessage());
+        }
     }
 }
