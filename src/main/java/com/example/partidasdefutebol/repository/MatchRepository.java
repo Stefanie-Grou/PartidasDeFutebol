@@ -17,7 +17,9 @@ public interface MatchRepository extends JpaRepository<MatchEntity, Long> {
     @Query("SELECT m FROM MatchEntity m WHERE m.stadiumId = ?1 AND m.matchDate = ?2")
     List<MatchEntity> findByStadiumAndDate(Long stadiumId, LocalDateTime desiredMatchDate);
 
-    @Query("SELECT MAX(m.matchDate) FROM MatchEntity m WHERE m.homeClubId = ?1 AND m.matchDate <= ?2")
+    @Query("SELECT " +
+            "MAX(m.matchDate) FROM MatchEntity m " +
+            "WHERE m.homeClubId = ?1 AND m.matchDate <= ?2")
     LocalDateTime hoursSinceLastGameForHomeClub(Long clubId, LocalDateTime desiredMatchDate);
 
     @Query("SELECT MAX(m.matchDate) FROM MatchEntity m WHERE m.awayClubId = ?1 AND m.matchDate <= ?2")
@@ -26,6 +28,25 @@ public interface MatchRepository extends JpaRepository<MatchEntity, Long> {
     @Query("SELECT m FROM MatchEntity m WHERE (m.homeClubId = :club OR m.homeClubId IS NOT NULL) OR " +
             "(m.awayClubId = :club OR m.awayClubId IS NOT NULL) OR (m.stadiumId = :stadium OR m.stadiumId IS NOT NULL)")
     Page<MatchEntity> findByFilters(@Param("club") Long club, @Param("stadium") Long stadium, Pageable pageable);
+
+    @Query("SELECT \n" +
+            "    h.clubName, " +
+            "    a.clubName, " +
+            "    m.homeClubNumberOfGoals, " +
+            "    m.awayClubNumberOfGoals, " +
+            "    CASE " +
+            "        WHEN m.homeClubNumberOfGoals = m.awayClubNumberOfGoals THEN 'Empate' " +
+            "        WHEN m.homeClubNumberOfGoals > m.awayClubNumberOfGoals THEN h.clubName " +
+            "        WHEN m.homeClubNumberOfGoals < m.awayClubNumberOfGoals THEN a.clubName " +
+            "    END " +
+            "FROM " +
+            "    MatchEntity m " +
+            "JOIN " +
+            "    ClubEntity h on h.id = m.homeClubId " +
+            "JOIN " +
+            "    ClubEntity a on a.id = m.awayClubId " +
+            "WHERE " +
+            "    m.homeClubId = :clubId1 AND m.awayClubId = :clubId2 " +
+            "    OR (m.homeClubId = :clubId2 AND m.awayClubId = :clubId1)")
+    List<Object[]> findMatchesBetweenClubs(Long clubId1, Long clubId2);
 }
-
-

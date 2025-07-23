@@ -10,10 +10,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -91,5 +91,33 @@ public class stadiumServiceTest {
         assertThat(exception.getStatusCode()).isEqualTo(404);
         assertThat(exception.getMessage()).isEqualTo("O estádio nao foi encontrado na base de dados.");
 
+    }
+
+    @Test
+    public void shouldRetrieveStadiumsSuccessfully() {
+        String nameFilter = "Pacaembu";
+        String stateFilter = null;
+        int page = 0;
+        int size = 10;
+        String sortField = "stadiumState";
+        String sortOrder = "asc";
+
+        List stadiumsPage =
+                stadiumService.getStadiums(nameFilter, stateFilter, page, size, sortField, sortOrder).getContent();
+        assertThat(stadiumsPage).isNotNull();
+    }
+
+    @Test
+    public void shouldRetrieveStadiumsSuccessfullyAndDescending() {
+        String nameFilter = "Pacaembu";
+        String stateFilter = null;
+        int page = 0;
+        int size = 10;
+        String sortField = "stadiumState";
+        String sortOrder = "desc";
+
+        List stadiumsPage =
+                stadiumService.getStadiums(nameFilter, stateFilter, page, size, sortField, sortOrder).getContent();
+        assertThat(stadiumsPage).isNotNull();
     }
 }

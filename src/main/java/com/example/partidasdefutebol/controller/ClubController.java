@@ -1,6 +1,7 @@
 package com.example.partidasdefutebol.controller;
 
 import com.example.partidasdefutebol.dto.GoalSummary;
+import com.example.partidasdefutebol.dto.SummaryByOpponent;
 import com.example.partidasdefutebol.entities.ClubEntity;
 import com.example.partidasdefutebol.exceptions.ConflictException;
 import com.example.partidasdefutebol.service.ClubService;
@@ -70,8 +71,22 @@ public class ClubController {
     }
 
     @GetMapping("/retrospecto/{id}")
-    public ResponseEntity<GoalSummary> getClubRetrospective(@PathVariable Long id) {
-        GoalSummary goalSummary = clubService.getClubRetrospective(id);
-        return ResponseEntity.status(200).body(goalSummary);
+    public ResponseEntity<?> getClubRetrospective(@PathVariable Long id) {
+        try {
+            GoalSummary goalSummary = clubService.getClubRetrospective(id);
+            return ResponseEntity.status(200).body(goalSummary);
+        } catch (ConflictException e) {
+            return ResponseEntity.status(e.getStatusCode()).body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/retrospecto-por-oponente/{id}")
+    public ResponseEntity<?> getClubRetrospectiveByOpponent(@PathVariable Long id) {
+        try {
+            Page<SummaryByOpponent> summaryByOpponent = clubService.getClubRetrospectiveByOpponent(id);
+            return ResponseEntity.status(200).body(summaryByOpponent);
+        } catch (ConflictException e) {
+            return ResponseEntity.status(e.getStatusCode()).body(e.getMessage());
+        }
     }
 }
