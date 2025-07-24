@@ -18,18 +18,27 @@ public class StadiumEntity {
     @Setter
     private Long stadiumId;
 
-    @NotBlank(message = "O nome do estadio é obrigatório")
-    @Size(min = 3, max = 255, message = "O nome do estadio deve ser composto por, no mínimo, 3 letras.")
+    @NotBlank
     @Getter
     @Setter
     private String stadiumName;
 
-    @NotBlank(message = "O estado do estádio é mandatório para o cadastro")
-    @Size(min = 2, max = 2, message = "O estado do estadio deve ser composto por 2 letras.")
+    @NotBlank
     @Getter
+    @Setter
     private String stadiumState;
 
-    public void setStadiumState(String stadiumState) {
-        this.stadiumState = stadiumState.toUpperCase();
-    }
+    @NotBlank
+    @Getter
+    @Setter
+    private String city;
+
+    @Getter
+    @Setter
+    private String street;
+
+    @Getter
+    @Setter
+    @NotBlank
+    private String cep;
 }

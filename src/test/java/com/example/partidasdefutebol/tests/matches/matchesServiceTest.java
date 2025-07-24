@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -92,11 +91,11 @@ public class matchesServiceTest {
         MatchEntity match = matchService.getMatchById(5L);
 
         assertThat(match).isNotNull();
-        assertThat(match.getHomeClubId()).isEqualTo(1L);
-        assertThat(match.getAwayClubId()).isEqualTo(2L);
-        assertThat(match.getHomeClubNumberOfGoals()).isEqualTo(3L);
+        assertThat(match.getHomeClubId()).isEqualTo(4L);
+        assertThat(match.getAwayClubId()).isEqualTo(9L);
+        assertThat(match.getHomeClubNumberOfGoals()).isEqualTo(1L);
         assertThat(match.getAwayClubNumberOfGoals()).isEqualTo(1L);
-        assertThat(match.getStadiumId()).isEqualTo(1L);
+        assertThat(match.getStadiumId()).isEqualTo(6L);
         assertThat(match.getMatchDate()).isNotNull();
     }
 

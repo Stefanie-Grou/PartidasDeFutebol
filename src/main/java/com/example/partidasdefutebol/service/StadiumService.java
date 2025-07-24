@@ -1,23 +1,19 @@
 package com.example.partidasdefutebol.service;
 
-import com.example.partidasdefutebol.entities.ClubEntity;
+import com.example.partidasdefutebol.entities.AddressEntity;
 import com.example.partidasdefutebol.entities.StadiumEntity;
+import com.example.partidasdefutebol.entities.StadiumFromController;
 import com.example.partidasdefutebol.exceptions.ConflictException;
 import com.example.partidasdefutebol.repository.StadiumRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
-
-import static com.example.partidasdefutebol.util.isValidBrazilianState.isValidBrazilianState;
 
 @Service
 public class StadiumService {
@@ -25,20 +21,28 @@ public class StadiumService {
     @Autowired
     private StadiumRepository stadiumRepository;
 
-    public StadiumEntity saveStadium(StadiumEntity stadiumEntity) {
-        if (!isValidBrazilianState(stadiumEntity.getStadiumState())) {
-            throw new ConflictException("A sigla do estado é inválida.", 409);
-        }
-        return stadiumRepository.save(stadiumEntity);
+    public StadiumEntity saveStadium(StadiumFromController stadiumFromController) {
+        AddressEntity addressInfo = AddressSearchService.findFullAddressByCep(stadiumFromController.getCep());
+        StadiumEntity stadium = new StadiumEntity();
+        stadium.setStadiumName(stadiumFromController.getStadiumName());
+        stadium.setStadiumState(addressInfo.getState());
+        stadium.setStreet(addressInfo.getStreet());
+        stadium.setCity(addressInfo.getCity());
+        stadium.setCep(addressInfo.getCep());
+        return stadiumRepository.save(stadium);
     }
 
     public StadiumEntity updateStadium(
             Long stadiumId,
-            StadiumEntity requestedToUpdateStadiumEntity) {
+            StadiumFromController requestedToUpdateStadiumEntity) {
         doesStadiumExist(stadiumId);
         StadiumEntity existingStadiumEntity = stadiumRepository.findById(stadiumId).get();
+        AddressEntity addressInfo = AddressSearchService.findFullAddressByCep(requestedToUpdateStadiumEntity.getCep());
+        existingStadiumEntity.setStreet(addressInfo.getStreet());
+        existingStadiumEntity.setCity(addressInfo.getCity());
+        existingStadiumEntity.setCep(addressInfo.getCep());
+        existingStadiumEntity.setStadiumState(addressInfo.getState());
         existingStadiumEntity.setStadiumName(requestedToUpdateStadiumEntity.getStadiumName());
-        existingStadiumEntity.setStadiumState(requestedToUpdateStadiumEntity.getStadiumState());
         return stadiumRepository.saveAndFlush(existingStadiumEntity);
     }
 
@@ -65,7 +69,7 @@ public class StadiumService {
 
     public void doesStadiumExist(Long stadiumId) throws ResponseStatusException {
         if (!stadiumRepository.existsById(stadiumId)) {
-            throw new ConflictException("O estádio nao foi encontrado na base de dados.", 404);
+            throw new ConflictException("O estádio não foi encontrado na base de dados.", 404);
         }
     }
 }

@@ -101,6 +101,7 @@ public class MatchService {
         clubService.wasClubCreatedBeforeGame(matchEntity.getAwayClubId(), matchEntity.getMatchDate());
         clubService.isClubInactive(clubService.findClubById(matchEntity.getHomeClubId()));
         clubService.isClubInactive(clubService.findClubById(matchEntity.getAwayClubId()));
+        stadiumService.doesStadiumExist(matchEntity.getStadiumId());
         stadiumIsFreeForMatchOnDay(matchEntity.getStadiumId(), matchEntity.getMatchDate());
         checkHomeClubRestPeriod(matchEntity.getHomeClubId(), matchEntity.getMatchDate());
         checkAwayClubRestPeriod(matchEntity.getAwayClubId(), matchEntity.getMatchDate());
