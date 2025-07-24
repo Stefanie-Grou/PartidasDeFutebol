@@ -3,14 +3,10 @@ package com.example.partidasdefutebol.tests.club;
 import com.example.partidasdefutebol.controller.ClubController;
 import com.example.partidasdefutebol.dto.GoalSummary;
 import com.example.partidasdefutebol.entities.ClubEntity;
-import com.example.partidasdefutebol.exceptions.ConflictException;
 import com.example.partidasdefutebol.service.ClubService;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import jakarta.transaction.Transactional;
-import org.assertj.core.api.AbstractStringAssert;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -25,7 +21,6 @@ import org.springframework.test.web.servlet.MvcResult;
 
 import java.time.LocalDate;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.assertj.core.api.Assertions.*;
 
@@ -151,7 +146,7 @@ public class ClubControllerTest {
     @Test
     @Transactional
     public void shouldUpdateClub_AllValidData() throws Exception {
-        Long clubId = 80L;
+        Long clubId = 8L;
 
         ClubEntity updatedClubEntity = new ClubEntity();
         updatedClubEntity.setClubName("Palmeiras");
@@ -185,7 +180,7 @@ public class ClubControllerTest {
                 .andReturn();
 
         assertThat(mvcResult.getResponse().getStatus()).isEqualTo(404);
-        assertThat(mvcResult.getResponse().getContentAsString()).contains("Clube não encontrado na base de dados.");
+        assertThat(mvcResult.getResponse().getContentAsString()).contains("Clube " + clubId + " não encontrado na base de dados.");
     }
 
     @Test
@@ -208,7 +203,7 @@ public class ClubControllerTest {
     @Test
     @Transactional
     public void shouldDeleteClub() throws Exception {
-        Long clubId = 80L;
+        Long clubId = 8L;
         MvcResult mvcResult = mockMvc.perform(delete("/clube/{id}", clubId))
                 .andReturn();
 
@@ -226,16 +221,16 @@ public class ClubControllerTest {
     }
 
     @Test
-    public void shouldGetOneClubPassingId() throws Exception {
-        Long clubId = 80L;
+    public void shouldGetOneClubById() throws Exception {
+        Long clubId = 8L;
         MvcResult mvcResult = mockMvc.perform(get("/clube/{id}", clubId))
                 .andReturn();
         assertThat(mvcResult.getResponse().getStatus()).isEqualTo(200);
 
         assertThat(mvcResult.getResponse().getStatus()).isEqualTo(200);
-        assertThat(mvcResult.getResponse().getContentAsString()).contains("Pop");
-        assertThat(mvcResult.getResponse().getContentAsString()).contains("SP");
-        assertThat(mvcResult.getResponse().getContentAsString()).contains("2024-01-01");
+        assertThat(mvcResult.getResponse().getContentAsString()).contains("Tigre");
+        assertThat(mvcResult.getResponse().getContentAsString()).contains("RS");
+        assertThat(mvcResult.getResponse().getContentAsString()).contains("1966-07-12");
         assertThat(mvcResult.getResponse().getContentAsString()).contains("true");
     }
 
@@ -253,22 +248,21 @@ public class ClubControllerTest {
                 .andReturn();
         //These aren't everything I'm expecting as a response, but it's enough for now
         assertThat(mvcResult.getResponse().getStatus()).isEqualTo(200);
-        assertThat(mvcResult.getResponse().getContentAsString()).contains("Ibis");
-        assertThat(mvcResult.getResponse().getContentAsString()).contains("SP");
-        assertThat(mvcResult.getResponse().getContentAsString()).contains("true");
+        assertThat(mvcResult.getResponse().getContentAsString()).contains("Novorizontino");
+        assertThat(mvcResult.getResponse().getContentAsString()).contains("Novorizontino");
+        assertThat(mvcResult.getResponse().getContentAsString()).contains("Novorizontino");
     }
 
     @Test
     public void shouldGetAllClubsByName() throws Exception {
-        MvcResult mvcResult = mockMvc.perform(get("http://localhost:8080/clube?name=Coritiba"))
+        MvcResult mvcResult = mockMvc.perform(get("http://localhost:8080/clube?name=Tigre"))
                 .andReturn();
 
         assertThat(mvcResult.getResponse().getStatus()).isEqualTo(200);
         String response = mvcResult.getResponse().getContentAsString();
-        assertThat(response).contains("Coritiba");
-        assertThat(response).contains("PR");
-        assertThat(response).contains("MT");
-        assertThat(response).contains("PA");
+        assertThat(response).contains("Tigre");
+        assertThat(response).contains("RS");
+        assertThat(response).contains("1966");
     }
 
     @Test
@@ -279,10 +273,18 @@ public class ClubControllerTest {
 
         GoalSummary goalSummary =
                 new ObjectMapper().readValue(mvcResult.getResponse().getContentAsString(), GoalSummary.class);
-        assertThat(goalSummary.getTotalOfPositiveGoals()).isEqualTo(25);
-        assertThat(goalSummary.getTotalOfNegativeGoals()).isEqualTo(13);
-        assertThat(goalSummary.getTotalOfVictories()).isEqualTo(7);
-        assertThat(goalSummary.getTotalOfDraws()).isEqualTo(1);
-        assertThat(goalSummary.getTotalOfDefeats()).isEqualTo(1);
+        assertThat(goalSummary.getTotalOfPositiveGoals()).isEqualTo(2);
+        assertThat(goalSummary.getTotalOfNegativeGoals()).isEqualTo(0);
+        assertThat(goalSummary.getTotalOfVictories()).isEqualTo(2);
+        assertThat(goalSummary.getTotalOfDraws()).isEqualTo(0);
+        assertThat(goalSummary.getTotalOfDefeats()).isEqualTo(0);
+    }
+
+    @Test
+    public void shouldNotRetrieveClubRetrospective_InvalidId() throws Exception {
+        MvcResult mvcResult = mockMvc.perform(get("/clube/retrospecto/100"))
+                .andReturn();
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(404);
+        assertThat(mvcResult.getResponse().getContentAsString()).contains("Clube 100 não encontrado na base de dados.");
     }
 }
