@@ -43,13 +43,13 @@ public class ClubServiceTest {
             clubService.doesClubExist(clubId);
         });
         assertThat(exception.getStatusCode()).isEqualTo(404);
-        assertThat(exception.getMessage()).isEqualTo("Clube não encontrado na base de dados.");
+        assertThat(exception.getMessage()).isEqualTo("Clube " + clubId + " não encontrado na base de dados.");
     }
 
     @Test
     @Transactional
     public void shoulUpdateClubSucessfully_ValidInformation() {
-        Long clubToUpdateId = 43L;
+        Long clubToUpdateId = 4L;
         ClubEntity clubToBeUpdatedEntity = new ClubEntity();
         clubToBeUpdatedEntity.setClubName("Coritiba");
         clubToBeUpdatedEntity.setStateAcronym("PR");
@@ -85,11 +85,10 @@ public class ClubServiceTest {
         ClubEntity clubEntity = clubService.findClubById(clubId);
         assertThat(clubEntity.getId()).isEqualTo(clubId);
         assertThat(clubEntity).isNotNull();
-        assertThat(clubEntity.getIsActive()).isTrue();
-        assertThat(clubEntity.getClubName()).isEqualTo("São Paulo");
-        assertThat(clubEntity.getId()).isEqualTo(clubId);
-        assertThat(clubEntity.getStateAcronym()).isEqualTo("MS");
-        assertThat(clubEntity.getCreatedOn()).isEqualTo(LocalDate.of(2023, 10, 1));
+        assertThat(clubEntity.getIsActive()).isFalse();
+        assertThat(clubEntity.getClubName()).isEqualTo("Ypiranga-RS");
+        assertThat(clubEntity.getStateAcronym()).isEqualTo("RS");
+        assertThat(clubEntity.getCreatedOn()).isEqualTo(LocalDate.of(1910, 9, 18));
     }
 
     @Test
@@ -99,12 +98,12 @@ public class ClubServiceTest {
             clubService.findClubById(clubId);
         });
         assertThat(exception.getStatusCode()).isEqualTo(404);
-        assertThat(exception.getMessage()).isEqualTo("Clube não encontrado na base de dados.");
+        assertThat(exception.getMessage()).isEqualTo("Clube " + clubId + " não encontrado na base de dados.");
     }
 
     @Test
     public void shouldThrowException_InactiveClubEntityOnDB() {
-        Long clubId = 3L;
+        Long clubId = 10L;
         ClubEntity clubEntity = clubService.findClubById(clubId);
         ConflictException exception = assertThrows(ConflictException.class, () -> {
             clubService.isClubInactive(clubEntity);
@@ -135,10 +134,10 @@ public class ClubServiceTest {
         Long clubId = 1L;
         GoalSummary goalSummary = clubService.getClubRetrospective(clubId);
         assertThat(goalSummary).isNotNull();
-        assertThat(goalSummary.getTotalOfPositiveGoals()).isEqualTo(25);
-        assertThat(goalSummary.getTotalOfNegativeGoals()).isEqualTo(13);
-        assertThat(goalSummary.getTotalOfVictories()).isEqualTo(7);
-        assertThat(goalSummary.getTotalOfDraws()).isEqualTo(1);
-        assertThat(goalSummary.getTotalOfDefeats()).isEqualTo(1);
+        assertThat(goalSummary.getTotalOfPositiveGoals()).isEqualTo(2);
+        assertThat(goalSummary.getTotalOfNegativeGoals()).isEqualTo(0);
+        assertThat(goalSummary.getTotalOfVictories()).isEqualTo(2);
+        assertThat(goalSummary.getTotalOfDraws()).isEqualTo(0);
+        assertThat(goalSummary.getTotalOfDefeats()).isEqualTo(0);
     }
 }

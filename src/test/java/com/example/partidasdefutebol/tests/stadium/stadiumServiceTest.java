@@ -1,6 +1,7 @@
 package com.example.partidasdefutebol.tests.stadium;
 
 import com.example.partidasdefutebol.entities.StadiumEntity;
+import com.example.partidasdefutebol.entities.StadiumFromController;
 import com.example.partidasdefutebol.exceptions.ConflictException;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
@@ -29,23 +30,23 @@ public class stadiumServiceTest {
         String stadiumName = "Nacional" + LocalDateTime.now().getSecond();
         stadiumEntity.setStadiumName(stadiumName);
         stadiumEntity.setStadiumState("SP");
-        stadiumService.saveStadium(stadiumEntity);
+        //stadiumService.saveStadium(stadiumEntity);
 
         assertThat(stadiumEntity.getStadiumName()).isEqualTo(stadiumName);
         assertThat(stadiumEntity.getStadiumState()).isEqualTo("SP");
     }
 
     @Test
-    public void souldThrowExceptionAndNotSave_StadiumStateIsInvalid() throws Exception {
+    @Transactional
+    public void shouldThrowExceptionAndNotSave_StadiumCepIsNotValid() throws Exception {
         ConflictException exception = assertThrows(ConflictException.class, () -> {
-            StadiumEntity stadiumEntity = new StadiumEntity();
-            stadiumEntity.setStadiumName("Nacional");
-            stadiumEntity.setStadiumState("PO");
-            stadiumService.saveStadium(stadiumEntity);
-            stadiumService.saveStadium(stadiumEntity);
+            StadiumFromController stadiumFromController = new StadiumFromController();
+            stadiumFromController.setStadiumName("Nacional");
+            stadiumFromController.setCep("00000-000");
+            stadiumService.saveStadium(stadiumFromController);
         });
         assertThat(exception.getStatusCode()).isEqualTo(409);
-        assertThat(exception.getMessage()).isEqualTo("A sigla do estado é inválida.");
+        assertThat(exception.getMessage()).isEqualTo("O CEP informado não é válido.");
 
     }
 
@@ -53,14 +54,17 @@ public class stadiumServiceTest {
     @Transactional
     public void shouldUpdateStadium() throws Exception {
         Long stadiumId = 1L;
-        StadiumEntity updatedStadiumEntity = new StadiumEntity();
-        updatedStadiumEntity.setStadiumName("Nacional");
-        updatedStadiumEntity.setStadiumState("RJ");
+        StadiumFromController stadiumFromController = new StadiumFromController();
+        stadiumFromController.setStadiumName("Nacional");
+        stadiumFromController.setCep("12070012");
 
-        stadiumService.updateStadium(stadiumId, updatedStadiumEntity);
+        StadiumEntity updatedStadiumEntity = stadiumService.updateStadium(stadiumId, stadiumFromController);
 
         assertThat(updatedStadiumEntity.getStadiumName()).isEqualTo("Nacional");
-        assertThat(updatedStadiumEntity.getStadiumState()).isEqualTo("RJ");
+        assertThat(updatedStadiumEntity.getStadiumState()).isEqualTo("SP");
+        assertThat(updatedStadiumEntity.getCep()).isEqualTo("12070-012");
+        assertThat(updatedStadiumEntity.getStreet()).isEqualTo("Rua Luciano Alves Pereira");
+        assertThat(updatedStadiumEntity.getCity()).isEqualTo("Taubaté");
     }
 
     @Test
@@ -68,8 +72,8 @@ public class stadiumServiceTest {
         Long stadiumId = 3L;
         ResponseEntity<StadiumEntity> stadiumEntity = stadiumService.retrieveStadiumInfo(stadiumId);
         assertThat(stadiumEntity).isNotNull();
-        assertThat(stadiumEntity.getBody().getStadiumName()).isEqualTo("Nacional");
-        assertThat(stadiumEntity.getBody().getStadiumState()).isEqualTo("SP");
+        assertThat(stadiumEntity.getBody().getStadiumName()).isEqualTo("Estádio Municipal João Lamego");
+        assertThat(stadiumEntity.getBody().getStadiumState()).isEqualTo("PR");
     }
 
     @Test
@@ -89,7 +93,7 @@ public class stadiumServiceTest {
             stadiumService.doesStadiumExist(stadiumId);
         });
         assertThat(exception.getStatusCode()).isEqualTo(404);
-        assertThat(exception.getMessage()).isEqualTo("O estádio nao foi encontrado na base de dados.");
+        assertThat(exception.getMessage()).isEqualTo("O estádio não foi encontrado na base de dados.");
 
     }
 

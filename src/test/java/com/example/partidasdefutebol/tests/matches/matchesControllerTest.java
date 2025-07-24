@@ -76,8 +76,8 @@ public class matchesControllerTest {
     public void shouldCreateMatchSuccessfully() throws Exception {
         MatchEntity match = new MatchEntity();
         match.setStadiumId(1L);
-        match.setAwayClubId(2L);
-        match.setHomeClubId(1L);
+        match.setAwayClubId(6L);
+        match.setHomeClubId(9L);
         match.setMatchDate(LocalDateTime.now());
         match.setHomeClubNumberOfGoals(1L);
         match.setAwayClubNumberOfGoals(0L);
@@ -90,5 +90,24 @@ public class matchesControllerTest {
         assertThat(mvcResult.getResponse().getStatus()).isEqualTo(201);
     }
 
+    @Test
+    @Transactional
+    public void shouldUpdateMatchSuccessfully() throws Exception {
+        Long matchId = 3L;
+        MatchEntity match = new MatchEntity();
+        match.setStadiumId(1L);
+        match.setAwayClubId(6L);
+        match.setHomeClubId(9L);
+        match.setMatchDate(LocalDateTime.now());
+        match.setHomeClubNumberOfGoals(1L);
+        match.setAwayClubNumberOfGoals(0L);
 
+        MvcResult mvcResult = mockMvc.perform(put("/partida/{id}", matchId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(match)))
+                .andReturn();
+
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(200);
+
+    }
 }

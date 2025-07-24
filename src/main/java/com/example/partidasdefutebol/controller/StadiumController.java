@@ -1,6 +1,7 @@
 package com.example.partidasdefutebol.controller;
 
 import com.example.partidasdefutebol.entities.StadiumEntity;
+import com.example.partidasdefutebol.entities.StadiumFromController;
 import com.example.partidasdefutebol.exceptions.ConflictException;
 import com.example.partidasdefutebol.service.StadiumService;
 import jakarta.validation.Valid;
@@ -16,9 +17,9 @@ public class StadiumController {
     private StadiumService stadiumService;
 
     @PostMapping
-    public ResponseEntity<?> save(@Valid @RequestBody StadiumEntity stadiumEntity) {
+    public ResponseEntity<?> save(@Valid @RequestBody StadiumFromController stadiumFromController) {
         try {
-            StadiumEntity savedStadiumEntity = stadiumService.saveStadium(stadiumEntity);
+            StadiumEntity savedStadiumEntity = stadiumService.saveStadium(stadiumFromController);
             return ResponseEntity.status(201).body(savedStadiumEntity);
         } catch (ConflictException e) {
             return ResponseEntity.status(e.getStatusCode()).body(e.getMessage());
@@ -29,10 +30,10 @@ public class StadiumController {
     @RequestMapping("/{id}")
     public ResponseEntity<?> update(
             @PathVariable Long id,
-            @Valid @RequestBody StadiumEntity requestedToUpdateStadiumEntity
+            @Valid @RequestBody StadiumFromController stadiumFromController
     ) {
         try {
-            StadiumEntity updatedStadiumEntity = stadiumService.updateStadium(id, requestedToUpdateStadiumEntity);
+            StadiumEntity updatedStadiumEntity = stadiumService.updateStadium(id, stadiumFromController);
             return ResponseEntity.status(200).body(updatedStadiumEntity);
         } catch (ConflictException e) {
             return ResponseEntity.status(e.getStatusCode()).body(e.getMessage());

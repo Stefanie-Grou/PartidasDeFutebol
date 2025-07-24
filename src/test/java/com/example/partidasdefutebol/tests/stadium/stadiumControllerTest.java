@@ -2,14 +2,12 @@ package com.example.partidasdefutebol.tests.stadium;
 
 import com.example.partidasdefutebol.controller.StadiumController;
 import com.example.partidasdefutebol.entities.StadiumEntity;
-import com.example.partidasdefutebol.exceptions.ConflictException;
+import com.example.partidasdefutebol.entities.StadiumFromController;
 import com.example.partidasdefutebol.repository.StadiumRepository;
 import com.example.partidasdefutebol.service.StadiumService;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import jakarta.transaction.Transactional;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -51,75 +49,85 @@ public class stadiumControllerTest {
     }
 
     @Test
+    @Transactional
     public void shouldCreateStadiumSucessfully() throws Exception {
-        StadiumEntity stadiumEntity = new StadiumEntity();
-        String stadiumName = "Nacional" + LocalDateTime.now();
-        stadiumEntity.setStadiumName(stadiumName);
-        stadiumEntity.setStadiumState("AC");
+        StadiumFromController stadiumFromController = new StadiumFromController();
+        stadiumFromController.setStadiumName("Nacional");
+        stadiumFromController.setCep("01311000");
 
         MvcResult mvcResult = mockMvc.perform(post("/estadio")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(stadiumEntity)))
+                        .content(objectMapper.writeValueAsString(stadiumFromController)))
                 .andReturn();
 
         assertThat(mvcResult.getResponse().getStatus()).isEqualTo(201);
-        assertThat(mvcResult.getResponse().getContentAsString()).contains(stadiumName);
-        assertThat(mvcResult.getResponse().getContentAsString()).contains("AC");
+        assertThat(mvcResult.getResponse().getContentAsString()).contains("SP");
+        assertThat(mvcResult.getResponse().getContentAsString()).contains("Nacional");
+        assertThat(mvcResult.getResponse().getContentAsString()).contains("01311-000");
+        assertThat(mvcResult.getResponse().getContentAsString()).contains("São Paulo");
+        assertThat(mvcResult.getResponse().getContentAsString()).contains("Avenida Paulista");
+
     }
 
     @Test
-    public void shouldThrowException_InvalidStadiumStateAcronym() throws Exception {
-        StadiumEntity stadiumEntity = new StadiumEntity();
-        String stadiumName = "Nacional" + LocalDateTime.now().getSecond();
-        stadiumEntity.setStadiumName(stadiumName);
-        stadiumEntity.setStadiumState("PQ");
+    @Transactional
+    public void shouldThrowExceptionAndWontCreate_InvalidStadiumStateAcronym() throws Exception {
+        StadiumFromController stadiumFromController = new StadiumFromController();
+        stadiumFromController.setStadiumName("Nacional");
+        stadiumFromController.setCep("00000000");
         MvcResult mvcResult = mockMvc.perform(post("/estadio")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(stadiumEntity)))
+                        .content(objectMapper.writeValueAsString(stadiumFromController)))
                 .andReturn();
         assertThat(mvcResult.getResponse().getStatus()).isEqualTo(409);
-        assertThat(mvcResult.getResponse().getContentAsString()).contains("A sigla do estado é inválida.");
+        assertThat(mvcResult.getResponse().getContentAsString()).contains("O CEP informado não é válido.");
     }
 
     @Test
     @Transactional
     public void shoulduUpdateStadiumSucessfully() throws Exception {
         Long stadiumId = 2L;
-        StadiumEntity stadiumEntity = new StadiumEntity();
-        stadiumEntity.setStadiumName("Pacaembu");
-        stadiumEntity.setStadiumState("AC");
+        StadiumFromController stadiumFromController = new StadiumFromController();
+        stadiumFromController.setStadiumName("Pacaembu");
+        stadiumFromController.setCep("17860000");
         MvcResult mvcResult = mockMvc.perform(put("/estadio/{id}", stadiumId)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(stadiumEntity)))
+                        .content(objectMapper.writeValueAsString(stadiumFromController)))
                 .andReturn();
 
         assertThat(mvcResult.getResponse().getStatus()).isEqualTo(200);
         assertThat(mvcResult.getResponse().getContentAsString()).contains("Pacaembu");
-        assertThat(mvcResult.getResponse().getContentAsString()).contains("AC");
+        assertThat(mvcResult.getResponse().getContentAsString()).contains("SP");
+        assertThat(mvcResult.getResponse().getContentAsString()).contains("17860-000");
+        assertThat(mvcResult.getResponse().getContentAsString()).contains("Pacaembu");
+
     }
 
     @Test
-    public void shouldThrowException_InvalidStadiumId() throws Exception {
+    public void shouldThrowExceptionAndDontUpdate_InvalidStadiumId() throws Exception {
         Long stadiumId = 100L;
-        StadiumEntity stadiumEntity = new StadiumEntity();
-        stadiumEntity.setStadiumName("Pacaembu");
-        stadiumEntity.setStadiumState("AC");
+        StadiumFromController stadiumFromController = new StadiumFromController();
+        stadiumFromController.setStadiumName("Pacaembu");
+        stadiumFromController.setCep("21941600");
         MvcResult mvcResult = mockMvc.perform(put("/estadio/{id}", stadiumId)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(stadiumEntity)))
+                        .content(objectMapper.writeValueAsString(stadiumFromController)))
                 .andReturn();
         assertThat(mvcResult.getResponse().getStatus()).isEqualTo(404);
-        assertThat(mvcResult.getResponse().getContentAsString()).contains("O estádio nao foi encontrado na base de dados.");
+        assertThat(mvcResult.getResponse().getContentAsString()).contains("O estádio não foi encontrado na base de dados.");
     }
 
     @Test
     public void shouldGetStadiumInfoSuccessfully() throws Exception {
-        Long stadiumId = 1L;
+        Long stadiumId = 6L;
         MvcResult mvcResult = mockMvc.perform(get("/estadio/{id}", stadiumId))
                 .andReturn();
         assertThat(mvcResult.getResponse().getStatus()).isEqualTo(200);
-        assertThat(mvcResult.getResponse().getContentAsString()).contains("Nacional");
-        assertThat(mvcResult.getResponse().getContentAsString()).contains("RJ");
+        assertThat(mvcResult.getResponse().getContentAsString()).contains("Estádio Eucílio Viana");
+        assertThat(mvcResult.getResponse().getContentAsString()).contains("MA");
+        assertThat(mvcResult.getResponse().getContentAsString()).contains("65135-000");
+        assertThat(mvcResult.getResponse().getContentAsString()).contains("São José de Ribamar");
+        assertThat(mvcResult.getResponse().getContentAsString()).contains("Rua Marinha Verde, s/n");
     }
 
     @Test
@@ -136,8 +144,9 @@ public class stadiumControllerTest {
         MvcResult mvcResult = mockMvc.perform(get("/estadio?state=SP"))
                 .andReturn();
         assertThat(mvcResult.getResponse().getStatus()).isEqualTo(200);
-        assertThat(mvcResult.getResponse().getContentAsString()).contains("Nacional");
-        assertThat(mvcResult.getResponse().getContentAsString()).contains("SP");
+        assertThat(mvcResult.getResponse().getContentAsString()).contains("Estádio Municipal Jorge Ismael de Biasi");
+        assertThat(mvcResult.getResponse().getContentAsString()).contains("Estádio Municipal Zico");
+        assertThat(mvcResult.getResponse().getContentAsString()).doesNotContain("Estádio Dário Gomes");
     }
 
 }
