@@ -16,6 +16,7 @@ public class MatchController {
     @Autowired
     private MatchService matchService;
 
+    // Requisito I#6 -> Criar uma partida
     @PostMapping
     public ResponseEntity<MatchEntity> createMatch(@Valid @RequestBody MatchEntity matchEntity) {
         try {
@@ -26,6 +27,7 @@ public class MatchController {
         }
     }
 
+    // Requisito I#7 -> Atualizar uma partida
     @PutMapping
     @RequestMapping("/{id}")
     public ResponseEntity<MatchEntity> updateMatch(@PathVariable Long id, @RequestBody MatchEntity requestedToUpdateMatchEntity) {
@@ -37,6 +39,7 @@ public class MatchController {
         }
     }
 
+    // Requisito I#8 -> Deletar uma partida
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteMatch(@PathVariable Long id) {
         try {
@@ -47,6 +50,7 @@ public class MatchController {
         }
     }
 
+    // Requisito I#9 -> Buscar uma partida
     @GetMapping("/{id}")
     public ResponseEntity<?> getMatchById(@PathVariable Long id) {
         try {
@@ -57,6 +61,7 @@ public class MatchController {
         }
     }
 
+    // Requisito I#10 -> Buscar todas as partidas + III#1 -> Adicionar goleadas
     @GetMapping
     public ResponseEntity<Page<MatchEntity>> getMatches(
             @RequestParam(required = false) Long club,
@@ -64,12 +69,15 @@ public class MatchController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "homeClubId") String sortField,
-            @RequestParam(defaultValue = "asc") String sortOrder) {
-
-        Page<MatchEntity> matches = matchService.getMatches(club, stadium, page, size, sortField, sortOrder);
+            @RequestParam(defaultValue = "asc") String sortOrder,
+            @RequestParam(defaultValue = "false") Boolean isRout,
+            @RequestParam(required = false) String showOnly) {
+        Page<MatchEntity> matches = matchService.getMatches
+                (club, stadium, page, size, sortField, sortOrder, isRout, showOnly);
         return ResponseEntity.ok(matches);
     }
 
+    // Requisito II#3 -> Buscar uma partida entre dois clubes
     @GetMapping("/{id1}/versus/{id2}")
     public ResponseEntity<?> getMatchBetweenClubs(@PathVariable Long id1, @PathVariable Long id2) {
         try {
@@ -77,5 +85,10 @@ public class MatchController {
         } catch (ConflictException e) {
             return ResponseEntity.status(e.getStatusCode()).body(e.getMessage());
         }
+    }
+
+    @GetMapping("/goleadas")
+    public ResponseEntity<?> getAllRouts() {
+        return ResponseEntity.status(200).body(matchService.getAllRouts());
     }
 }

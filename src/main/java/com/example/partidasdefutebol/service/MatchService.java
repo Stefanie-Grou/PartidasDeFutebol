@@ -1,11 +1,13 @@
 package com.example.partidasdefutebol.service;
 
 import com.example.partidasdefutebol.dto.Confrontations;
+import com.example.partidasdefutebol.dto.Routs;
 import com.example.partidasdefutebol.entities.MatchEntity;
 import com.example.partidasdefutebol.exceptions.ConflictException;
 import com.example.partidasdefutebol.repository.MatchRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -120,16 +122,17 @@ public class MatchService {
     }
 
     public Page<MatchEntity> getMatches
-            (Long club, Long stadium, int page, int size, String sortField, String sortOrder) {
+            (Long club, Long stadium, int page, int size, String sortField, String sortOrder,
+             Boolean isRout, String showOnly) {
         Sort sort = Sort.by(sortField);
         if ("desc".equalsIgnoreCase(sortOrder)) {
             sort = sort.descending();
         }
         PageRequest pageRequest = PageRequest.of(page, size, sort);
-        return matchRepository.findByFilters(club, stadium, pageRequest);
+        return matchRepository.findByFilters(club, stadium, pageRequest, isRout, showOnly);
     }
 
-    public Object getMatchBetweenClubs (Long id1, Long id2) throws ResponseStatusException {
+    public List<Confrontations> getMatchBetweenClubs(Long id1, Long id2) throws ResponseStatusException {
         if (id1.equals(id2)) {
             throw new ConflictException("Os clubes devem ser diferentes", 409);
         }
@@ -148,5 +151,18 @@ public class MatchService {
             listOfConfrontations.add(confrontationEntity);
         }
         return listOfConfrontations;
+    }
+
+    public Page<Routs> getAllRouts() {
+        List<Object[]> allRouts = matchRepository.getAllRouts();
+        List<Routs> matchesWithEqualPlusGoalDiff = new ArrayList<>();
+        for (Object[] allRoutsIteration : allRouts) {
+            String clubsOnMatch = allRoutsIteration[0].toString();
+            String stadiumName = allRoutsIteration[1].toString();
+            String matchDate = allRoutsIteration[2].toString();
+            Routs routs = new Routs(clubsOnMatch, stadiumName, matchDate);
+            matchesWithEqualPlusGoalDiff.add(routs);
+        }
+        return new PageImpl<>(matchesWithEqualPlusGoalDiff);
     }
 }
