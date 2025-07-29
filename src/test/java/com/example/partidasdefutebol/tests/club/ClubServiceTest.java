@@ -1,6 +1,6 @@
 package com.example.partidasdefutebol.tests.club;
 
-import com.example.partidasdefutebol.dto.GoalSummary;
+import com.example.partidasdefutebol.entities.GoalSummary;
 import com.example.partidasdefutebol.entities.ClubEntity;
 import com.example.partidasdefutebol.exceptions.ConflictException;
 import jakarta.transaction.Transactional;

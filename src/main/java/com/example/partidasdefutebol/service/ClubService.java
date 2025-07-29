@@ -1,8 +1,9 @@
 package com.example.partidasdefutebol.service;
 
-import com.example.partidasdefutebol.dto.GoalSummary;
-import com.example.partidasdefutebol.dto.SummaryByOpponent;
+import com.example.partidasdefutebol.entities.GoalSummary;
+import com.example.partidasdefutebol.entities.SummaryByOpponent;
 import com.example.partidasdefutebol.entities.ClubEntity;
+import com.example.partidasdefutebol.entities.Ranking;
 import com.example.partidasdefutebol.exceptions.ConflictException;
 import com.example.partidasdefutebol.repository.ClubRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +35,7 @@ public class ClubService {
         return clubRepository.save(clubEntity);
     }
 
-    public void doesClubExist(Long clubId) throws ResponseStatusException {
+    public void doesClubExist(Long clubId) throws ConflictException {
         if (!clubRepository.existsById(clubId)) {
             throw new ConflictException("Clube " + clubId + " não encontrado na base de dados.", 404);
         }
@@ -80,7 +81,7 @@ public class ClubService {
         }
     }
 
-    public void isClubInactive(ClubEntity clubEntity) {
+    public void isClubInactive(ClubEntity clubEntity) throws ResponseStatusException {
         if (!clubEntity.getIsActive()) {
             throw new ConflictException("O clube " + clubEntity.getClubName() + " está inativo", 409);
         }
@@ -122,5 +123,51 @@ public class ClubService {
             summaryList.add(summaryByOpponent);
         }
         return new PageImpl<>(summaryList);
+    }
+
+    public List<Ranking> getClubRankingDispatcher(String rankingFactorFromController) {
+        List<Object[]> returnedRankingFromDatabase;
+        switch (rankingFactorFromController) {
+            case "partidas":
+                returnedRankingFromDatabase = fetchClubRankingByNumberOfMatchesData();
+                break;
+            case "vitorias":
+                returnedRankingFromDatabase = fetchClubRankingByTotalOfVictoriesData();
+                break;
+            case "gols":
+                returnedRankingFromDatabase = fetchClubRankingByTotalOfGoalsData();
+                break;
+            case "pontos":
+                returnedRankingFromDatabase = fetchClubRankingByTotalOfPointsData();
+                break;
+            default:
+                throw new ConflictException("Fator de classificação inválido", 409);
+        }
+        return setReturnedRankingInfoIntoEntity(returnedRankingFromDatabase);
+    }
+
+    public List<Object[]> fetchClubRankingByNumberOfMatchesData() {
+        return clubRepository.getRankingByTotalMatches();
+    }
+
+    public List<Object[]> fetchClubRankingByTotalOfVictoriesData() {
+        return clubRepository.getRankingByTotalWins();
+    }
+
+    public List<Object[]> fetchClubRankingByTotalOfGoalsData() {
+        return clubRepository.getRankingByTotalGoals();
+    }
+    public List<Object[]> fetchClubRankingByTotalOfPointsData() {
+        return clubRepository.getRankingByTotalPoints();
+    }
+
+    public List<Ranking> setReturnedRankingInfoIntoEntity(List<Object[]> returnedRankingFromDatabase) {
+        List<Ranking> rankingList = new ArrayList<>();
+        for (Object[] objects : returnedRankingFromDatabase) {
+            Ranking ranking = new Ranking(objects[0].toString(),
+                    Integer.parseInt(objects[1].toString()));
+            rankingList.add(ranking);
+        }
+        return rankingList;
     }
 }

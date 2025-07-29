@@ -1,7 +1,7 @@
 package com.example.partidasdefutebol.controller;
 
-import com.example.partidasdefutebol.dto.GoalSummary;
-import com.example.partidasdefutebol.dto.SummaryByOpponent;
+import com.example.partidasdefutebol.entities.GoalSummary;
+import com.example.partidasdefutebol.entities.SummaryByOpponent;
 import com.example.partidasdefutebol.entities.ClubEntity;
 import com.example.partidasdefutebol.exceptions.ConflictException;
 import com.example.partidasdefutebol.service.ClubService;
@@ -85,6 +85,16 @@ public class ClubController {
         try {
             Page<SummaryByOpponent> summaryByOpponent = clubService.getClubRetrospectiveByOpponent(id);
             return ResponseEntity.status(200).body(summaryByOpponent);
+        } catch (ConflictException e) {
+            return ResponseEntity.status(e.getStatusCode()).body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/ranking")
+    public ResponseEntity<?> getClubRanking(
+            @RequestParam String rankingFactor) {
+        try {
+            return ResponseEntity.status(200).body(clubService.getClubRankingDispatcher(rankingFactor));
         } catch (ConflictException e) {
             return ResponseEntity.status(e.getStatusCode()).body(e.getMessage());
         }

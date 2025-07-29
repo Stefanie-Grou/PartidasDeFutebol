@@ -1,4 +1,4 @@
-package com.example.partidasdefutebol.dto;
+package com.example.partidasdefutebol.entities;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;

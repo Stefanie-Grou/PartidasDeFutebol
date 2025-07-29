@@ -18,24 +18,24 @@ public class MatchController {
 
     // Requisito I#6 -> Criar uma partida
     @PostMapping
-    public ResponseEntity<MatchEntity> createMatch(@Valid @RequestBody MatchEntity matchEntity) {
+    public ResponseEntity<?> createMatch(@Valid @RequestBody MatchEntity matchEntity) {
         try {
             MatchEntity savedMatchEntity = matchService.createMatch(matchEntity);
             return ResponseEntity.status(201).body(savedMatchEntity);
         } catch (ConflictException e) {
-            throw new ConflictException(e.getMessage(), e.getStatusCode());
+            return ResponseEntity.status(e.getStatusCode()).body(e.getMessage());
         }
     }
 
     // Requisito I#7 -> Atualizar uma partida
     @PutMapping
     @RequestMapping("/{id}")
-    public ResponseEntity<MatchEntity> updateMatch(@PathVariable Long id, @RequestBody MatchEntity requestedToUpdateMatchEntity) {
+    public ResponseEntity<?> updateMatch(@PathVariable Long id, @RequestBody MatchEntity requestedToUpdateMatchEntity) {
         try {
             MatchEntity updatedMatchEntity = matchService.updateMatch(id, requestedToUpdateMatchEntity);
             return ResponseEntity.status(200).body(updatedMatchEntity);
         } catch (ConflictException e) {
-            throw new ConflictException(e.getMessage(), e.getStatusCode());
+            return ResponseEntity.status(e.getStatusCode()).body(e.getMessage());
         }
     }
 
@@ -46,7 +46,7 @@ public class MatchController {
             matchService.deleteMatch(id);
             return ResponseEntity.noContent().build();
         } catch (ConflictException e) {
-            throw new ConflictException(e.getMessage(), e.getStatusCode());
+            return ResponseEntity.status(e.getStatusCode()).body(e.getMessage());
         }
     }
 

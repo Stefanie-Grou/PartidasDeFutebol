@@ -1,6 +1,5 @@
 package com.example.partidasdefutebol.repository;
 
-import com.example.partidasdefutebol.entities.ClubEntity;
 import com.example.partidasdefutebol.entities.StadiumEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

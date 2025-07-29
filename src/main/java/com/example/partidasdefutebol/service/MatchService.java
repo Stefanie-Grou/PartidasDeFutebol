@@ -1,7 +1,7 @@
 package com.example.partidasdefutebol.service;
 
-import com.example.partidasdefutebol.dto.Confrontations;
-import com.example.partidasdefutebol.dto.Routs;
+import com.example.partidasdefutebol.entities.Confrontations;
+import com.example.partidasdefutebol.entities.Routs;
 import com.example.partidasdefutebol.entities.MatchEntity;
 import com.example.partidasdefutebol.exceptions.ConflictException;
 import com.example.partidasdefutebol.repository.MatchRepository;
@@ -42,19 +42,19 @@ public class MatchService {
         return matchRepository.save(matchEntity);
     }
 
-    public void isEachClubDifferent(MatchEntity matchEntity) {
+    public void isEachClubDifferent(MatchEntity matchEntity) throws ConflictException {
         if (Objects.equals(matchEntity.getAwayClubId(), matchEntity.getHomeClubId())) {
             throw new ConflictException("Os clubes devem ser diferentes", 400);
         }
     }
 
-    public void stadiumIsFreeForMatchOnDay(Long stadiumId, LocalDateTime desiredMatchDate) throws ResponseStatusException {
+    public void stadiumIsFreeForMatchOnDay(Long stadiumId, LocalDateTime desiredMatchDate) throws ConflictException {
         if (!matchRepository.findByStadiumAndDate(stadiumId, desiredMatchDate).isEmpty()) {
             throw new ConflictException("O estádio não está livre na data desejada", 409);
         }
     }
 
-    public Boolean checkHomeClubRestPeriod(Long homeClubId, LocalDateTime desiredMatchDate) throws ResponseStatusException {
+    public Boolean checkHomeClubRestPeriod(Long homeClubId, LocalDateTime desiredMatchDate) throws ConflictException {
         final int restPeriodInHoursIs = 48;
         LocalDateTime lastGameForHomeClubWasIn = matchRepository.hoursSinceLastGameForHomeClub(homeClubId, desiredMatchDate);
         if (lastGameForHomeClubWasIn == null) {
@@ -65,7 +65,7 @@ public class MatchService {
         return true;
     }
 
-    public Boolean checkAwayClubRestPeriod(Long homeClubId, LocalDateTime desiredMatchDate) throws ResponseStatusException {
+    public Boolean checkAwayClubRestPeriod(Long homeClubId, LocalDateTime desiredMatchDate) throws ConflictException {
         final int restPeriodInHoursIs = 48;
         LocalDateTime lastGameForHomeClubWasIn = matchRepository.hoursSinceLastGameForAwayClub(homeClubId, desiredMatchDate);
         if (lastGameForHomeClubWasIn == null) {
@@ -91,7 +91,7 @@ public class MatchService {
         return matchRepository.saveAndFlush(existingMatchEntity);
     }
 
-    public void validateIfNewMatchDateIsInTheFuture(MatchEntity requestedToUpdateMatchEntity) throws ResponseStatusException {
+    public void validateIfNewMatchDateIsInTheFuture(MatchEntity requestedToUpdateMatchEntity) throws ConflictException {
         if (requestedToUpdateMatchEntity.getMatchDate().isAfter(LocalDateTime.now())) {
             throw new ConflictException("A data da partida não pode ser posterior ao dia atual.", 400);
         }
