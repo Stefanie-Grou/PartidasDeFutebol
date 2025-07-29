@@ -88,4 +88,66 @@ public interface ClubRepository extends JpaRepository<ClubEntity, Long> {
             "GROUP BY " +
             "    adv ")
     List<Object[]> findClubRetrospectiveByIdAndOpponent(@Param("clubId") Long clubId);
+
+    @Query("""
+            SELECT c.clubName AS clubName, COUNT(m) AS totalGames \
+            FROM MatchEntity m \
+            JOIN ClubEntity c ON c.id = m.homeClubId OR c.id = m.awayClubId \
+            GROUP BY c.id
+            HAVING COUNT(m) > 0
+            ORDER BY totalGames DESC""")
+    List<Object[]> getRankingByTotalMatches();
+
+    @Query("""
+            SELECT c.clubName, COUNT(*) AS total_wins
+            FROM (
+                SELECT
+                    CASE
+             \
+                        WHEN m.homeClubNumberOfGoals > m.awayClubNumberOfGoals THEN m.homeClubId\s
+                        WHEN m.homeClubNumberOfGoals < m.awayClubNumberOfGoals THEN m.awayClubId\s
+                    END AS clubId
+                FROM MatchEntity m\s
+                WHERE m.homeClubNumberOfGoals <> m.awayClubNumberOfGoals
+            ) AS winners
+            INNER JOIN ClubEntity c ON c.id = winners.clubId
+            GROUP BY c.clubName
+            ORDER BY total_wins DESC""")
+    List<Object[]> getRankingByTotalWins();
+
+    @Query("""
+            SELECT c.clubName, goalsPerClub.totalGoals FROM (
+            SELECT m.homeClubId AS clubId, SUM(m.homeClubNumberOfGoals) as totalGoals
+            FROM MatchEntity m\s
+            GROUP BY m.homeClubId\s
+            HAVING SUM(m.homeClubNumberOfGoals) > 0\s
+            UNION\s
+            SELECT m.awayClubId AS clubId, SUM(m.awayClubNumberOfGoals)\s
+            FROM MatchEntity m\s
+            GROUP BY m.awayClubId\s
+            HAVING SUM(m.awayClubNumberOfGoals) > 0
+            ) as goalsPerClub
+            inner join ClubEntity c on c.id = goalsPerClub.clubId\s
+            ORDER BY totalGoals DESC""")
+    List<Object[]> getRankingByTotalGoals();
+
+    @Query(nativeQuery = true, value = "SELECT c.club_name, clubPoints.totalPoints FROM\n" +
+            "(SELECT home_club_id AS clubId, \n" +
+            "SUM(CASE WHEN home_club_number_of_goals > away_club_number_of_goals THEN 3 \n" +
+            "\t\t WHEN home_club_number_of_goals = away_club_number_of_goals THEN 1 \n" +
+            "\t\t ELSE 0 END) AS totalPoints \n" +
+            "FROM match_entity \n" +
+            "GROUP BY home_club_id \n" +
+            "HAVING totalPoints > 0 \n" +
+            "UNION \n" +
+            "SELECT away_club_id AS clubId, \n" +
+            "SUM(CASE WHEN away_club_number_of_goals > home_club_number_of_goals THEN 3 \n" +
+            "\t\t WHEN away_club_number_of_goals = home_club_number_of_goals THEN 1 \n" +
+            "\t\t ELSE 0 END) AS totalPoints \n" +
+            "FROM match_entity\n" +
+            "GROUP BY away_club_id \n" +
+            "HAVING totalPoints > 0) as clubPoints\n" +
+            "INNER JOIN club_entity c ON c.id = clubPoints.clubId\n" +
+            "ORDER BY clubPoints.totalPoints DESC")
+    List<Object[]> getRankingByTotalPoints();
 }
