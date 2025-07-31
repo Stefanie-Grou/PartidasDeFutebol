@@ -2,7 +2,7 @@ package com.example.partidasdefutebol.tests.stadium;
 
 import com.example.partidasdefutebol.entities.StadiumEntity;
 import com.example.partidasdefutebol.entities.StadiumFromController;
-import com.example.partidasdefutebol.exceptions.ConflictException;
+import com.example.partidasdefutebol.exceptions.CustomException;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +39,7 @@ public class stadiumServiceTest {
     @Test
     @Transactional
     public void shouldThrowExceptionAndNotSave_StadiumCepIsNotValid() throws Exception {
-        ConflictException exception = assertThrows(ConflictException.class, () -> {
+        CustomException exception = assertThrows(CustomException.class, () -> {
             StadiumFromController stadiumFromController = new StadiumFromController();
             stadiumFromController.setStadiumName("Nacional");
             stadiumFromController.setCep("00000-000");
@@ -79,7 +79,7 @@ public class stadiumServiceTest {
     @Test
     public void shouldThrowExceptionAndNotFindStadium() throws Exception {
         Long stadiumId = 100L;
-        ConflictException exception = assertThrows(ConflictException.class, () -> {
+        CustomException exception = assertThrows(CustomException.class, () -> {
             stadiumService.retrieveStadiumInfo(stadiumId);
         });
         assertThat(exception.getStatusCode()).isEqualTo(404);
@@ -89,7 +89,7 @@ public class stadiumServiceTest {
     @Test
     public void shouldThrowException_InvalidStadiumId() throws Exception {
         Long stadiumId = 300L;
-        ConflictException exception = assertThrows(ConflictException.class, () -> {
+        CustomException exception = assertThrows(CustomException.class, () -> {
             stadiumService.doesStadiumExist(stadiumId);
         });
         assertThat(exception.getStatusCode()).isEqualTo(404);

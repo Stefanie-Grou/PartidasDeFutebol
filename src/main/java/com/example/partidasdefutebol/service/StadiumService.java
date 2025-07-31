@@ -3,7 +3,7 @@ package com.example.partidasdefutebol.service;
 import com.example.partidasdefutebol.entities.AddressEntity;
 import com.example.partidasdefutebol.entities.StadiumEntity;
 import com.example.partidasdefutebol.entities.StadiumFromController;
-import com.example.partidasdefutebol.exceptions.ConflictException;
+import com.example.partidasdefutebol.exceptions.CustomException;
 import com.example.partidasdefutebol.repository.StadiumRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -52,7 +52,7 @@ public class StadiumService {
             StadiumEntity stadiumEntity = optionalStadium.get();
             return ResponseEntity.ok(stadiumEntity);
         } else {
-            throw new ConflictException("O estádio não foi encontrado na base de dados.", 404);
+            throw new CustomException("O estádio não foi encontrado na base de dados.", 404);
         }
     }
 
@@ -69,7 +69,7 @@ public class StadiumService {
 
     public void doesStadiumExist(Long stadiumId) throws ResponseStatusException {
         if (!stadiumRepository.existsById(stadiumId)) {
-            throw new ConflictException("O estádio não foi encontrado na base de dados.", 404);
+            throw new CustomException("O estádio não foi encontrado na base de dados.", 404);
         }
     }
 }

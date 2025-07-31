@@ -1,10 +1,15 @@
 package com.example.partidasdefutebol.controller;
 
 import com.example.partidasdefutebol.entities.GoalSummary;
+import com.example.partidasdefutebol.entities.QueueMessage;
 import com.example.partidasdefutebol.entities.SummaryByOpponent;
 import com.example.partidasdefutebol.entities.ClubEntity;
-import com.example.partidasdefutebol.exceptions.ConflictException;
+import com.example.partidasdefutebol.exceptions.CustomException;
+import com.example.partidasdefutebol.rabbitMQ.MessageSender;
 import com.example.partidasdefutebol.service.ClubService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -17,24 +22,32 @@ public class ClubController {
     @Autowired
     private ClubService clubService;
 
+    private final MessageSender messageSender;
+
+    public ClubController(MessageSender messageSender) {
+        this.messageSender = messageSender;
+    }
+
     @PostMapping
-    public ResponseEntity<?> createClub(@Valid @RequestBody ClubEntity clubEntity) {
-        try {
-            ClubEntity savedClubEntity = clubService.createClub(clubEntity);
-            return ResponseEntity.status(201).body(savedClubEntity);
-        } catch (ConflictException e) {
-            return ResponseEntity.status(e.getStatusCode()).body(e.getMessage());
-        }
+    public ResponseEntity<?> createClub(@Valid @RequestBody ClubEntity clubEntity) throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+        QueueMessage queueMessage = new QueueMessage("CREATE", clubEntity, null);
+        messageSender.sendMessage(objectMapper.writeValueAsString(queueMessage));
+        System.out.println("Message sent: " + clubEntity.getClubName());
+        return ResponseEntity.status(202).body("Aguardando processamento");
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateClub(@PathVariable Long id, @Valid @RequestBody ClubEntity requestedToUpdateClubEntity) {
-        try {
-            ClubEntity savedClubEntity = clubService.updateClub(id, requestedToUpdateClubEntity);
-            return ResponseEntity.status(200).body(savedClubEntity);
-        } catch (ConflictException e) {
-            return ResponseEntity.status(e.getStatusCode()).body(e.getMessage());
-        }
+    public ResponseEntity<?> updateClub
+            (@PathVariable Long id, @Valid @RequestBody ClubEntity requestedToUpdateClubEntity)
+            throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+        QueueMessage queueMessage = new QueueMessage("UPDATE", requestedToUpdateClubEntity, id);
+        messageSender.sendMessage(objectMapper.writeValueAsString(queueMessage));
+        System.out.println("Message sent: " + requestedToUpdateClubEntity.getClubName());
+        return ResponseEntity.status(202).body("Aguardando processamento");
     }
 
     @DeleteMapping("/{id}")
@@ -42,7 +55,7 @@ public class ClubController {
         try {
             ClubEntity onDeletionClub = clubService.deleteClub(id);
             return ResponseEntity.status(204).body(onDeletionClub);
-        } catch (ConflictException e) {
+        } catch (CustomException e) {
             return ResponseEntity.status(e.getStatusCode()).body(e.getMessage());
         }
     }
@@ -51,7 +64,7 @@ public class ClubController {
     public ResponseEntity<?> findById(@PathVariable Long id) {
         try {
             return ResponseEntity.status(200).body(clubService.findClubById(id));
-        } catch (ConflictException e) {
+        } catch (CustomException e) {
             return ResponseEntity.status(e.getStatusCode()).body(e.getMessage());
         }
     }
@@ -75,7 +88,7 @@ public class ClubController {
         try {
             GoalSummary goalSummary = clubService.getClubRetrospective(id);
             return ResponseEntity.status(200).body(goalSummary);
-        } catch (ConflictException e) {
+        } catch (CustomException e) {
             return ResponseEntity.status(e.getStatusCode()).body(e.getMessage());
         }
     }
@@ -85,7 +98,7 @@ public class ClubController {
         try {
             Page<SummaryByOpponent> summaryByOpponent = clubService.getClubRetrospectiveByOpponent(id);
             return ResponseEntity.status(200).body(summaryByOpponent);
-        } catch (ConflictException e) {
+        } catch (CustomException e) {
             return ResponseEntity.status(e.getStatusCode()).body(e.getMessage());
         }
     }
@@ -95,7 +108,7 @@ public class ClubController {
             @RequestParam String rankingFactor) {
         try {
             return ResponseEntity.status(200).body(clubService.getClubRankingDispatcher(rankingFactor));
-        } catch (ConflictException e) {
+        } catch (CustomException e) {
             return ResponseEntity.status(e.getStatusCode()).body(e.getMessage());
         }
     }

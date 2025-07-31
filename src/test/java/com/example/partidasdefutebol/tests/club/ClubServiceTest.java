@@ -2,7 +2,7 @@ package com.example.partidasdefutebol.tests.club;
 
 import com.example.partidasdefutebol.entities.GoalSummary;
 import com.example.partidasdefutebol.entities.ClubEntity;
-import com.example.partidasdefutebol.exceptions.ConflictException;
+import com.example.partidasdefutebol.exceptions.CustomException;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +39,7 @@ public class ClubServiceTest {
     @Test
     public void shouldThrowExceptionWontFindClub_InvalidClubId() {
         Long clubId = 190L;
-        ConflictException exception = assertThrows(ConflictException.class, () -> {
+        CustomException exception = assertThrows(CustomException.class, () -> {
             clubService.doesClubExist(clubId);
         });
         assertThat(exception.getStatusCode()).isEqualTo(404);
@@ -94,7 +94,7 @@ public class ClubServiceTest {
     @Test
     public void shouldNotFindClubAndThrowException_InvalidClubId() {
         Long clubId = 190L;
-        ConflictException exception = assertThrows(ConflictException.class, () -> {
+        CustomException exception = assertThrows(CustomException.class, () -> {
             clubService.findClubById(clubId);
         });
         assertThat(exception.getStatusCode()).isEqualTo(404);
@@ -105,7 +105,7 @@ public class ClubServiceTest {
     public void shouldThrowException_InactiveClubEntityOnDB() {
         Long clubId = 10L;
         ClubEntity clubEntity = clubService.findClubById(clubId);
-        ConflictException exception = assertThrows(ConflictException.class, () -> {
+        CustomException exception = assertThrows(CustomException.class, () -> {
             clubService.isClubInactive(clubEntity);
         });
         assertThat(exception.getStatusCode()).isEqualTo(409);
@@ -120,7 +120,7 @@ public class ClubServiceTest {
         LocalDateTime clubCreationDate =
                 clubService.findClubById(clubId).getCreatedOn().minusMonths(1).atStartOfDay();
 
-        ConflictException exception = assertThrows(ConflictException.class, () -> {
+        CustomException exception = assertThrows(CustomException.class, () -> {
             clubService.wasClubCreatedBeforeGame(clubId, clubCreationDate);
         });
         assertThat(exception.getStatusCode()).isEqualTo(409);

@@ -1,7 +1,7 @@
 package com.example.partidasdefutebol.controller;
 
 import com.example.partidasdefutebol.entities.MatchEntity;
-import com.example.partidasdefutebol.exceptions.ConflictException;
+import com.example.partidasdefutebol.exceptions.CustomException;
 import com.example.partidasdefutebol.service.MatchService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +22,7 @@ public class MatchController {
         try {
             MatchEntity savedMatchEntity = matchService.createMatch(matchEntity);
             return ResponseEntity.status(201).body(savedMatchEntity);
-        } catch (ConflictException e) {
+        } catch (CustomException e) {
             return ResponseEntity.status(e.getStatusCode()).body(e.getMessage());
         }
     }
@@ -34,7 +34,7 @@ public class MatchController {
         try {
             MatchEntity updatedMatchEntity = matchService.updateMatch(id, requestedToUpdateMatchEntity);
             return ResponseEntity.status(200).body(updatedMatchEntity);
-        } catch (ConflictException e) {
+        } catch (CustomException e) {
             return ResponseEntity.status(e.getStatusCode()).body(e.getMessage());
         }
     }
@@ -45,7 +45,7 @@ public class MatchController {
         try {
             matchService.deleteMatch(id);
             return ResponseEntity.noContent().build();
-        } catch (ConflictException e) {
+        } catch (CustomException e) {
             return ResponseEntity.status(e.getStatusCode()).body(e.getMessage());
         }
     }
@@ -56,7 +56,7 @@ public class MatchController {
         try {
             matchService.getMatchById(id);
             return ResponseEntity.status(200).body(matchService.getMatchById(id));
-        } catch (ConflictException e) {
+        } catch (CustomException e) {
             return ResponseEntity.status(e.getStatusCode()).body(e.getMessage());
         }
     }
@@ -82,7 +82,7 @@ public class MatchController {
     public ResponseEntity<?> getMatchBetweenClubs(@PathVariable Long id1, @PathVariable Long id2) {
         try {
             return ResponseEntity.status(200).body(matchService.getMatchBetweenClubs(id1, id2));
-        } catch (ConflictException e) {
+        } catch (CustomException e) {
             return ResponseEntity.status(e.getStatusCode()).body(e.getMessage());
         }
     }

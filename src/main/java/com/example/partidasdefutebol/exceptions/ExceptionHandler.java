@@ -15,8 +15,8 @@ import java.util.Map;
 @ControllerAdvice
 public class ExceptionHandler {
 
-    @org.springframework.web.bind.annotation.ExceptionHandler(ConflictException.class)
-    public ResponseEntity<ErrorResponse> handleConflictException(ConflictException ex) {
+    @org.springframework.web.bind.annotation.ExceptionHandler(CustomException.class)
+    public ResponseEntity<ErrorResponse> handleConflictException(CustomException ex) {
         ErrorResponse errorResponse = new ErrorResponse() {
 
             @Override

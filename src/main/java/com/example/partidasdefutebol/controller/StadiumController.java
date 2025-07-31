@@ -2,7 +2,7 @@ package com.example.partidasdefutebol.controller;
 
 import com.example.partidasdefutebol.entities.StadiumEntity;
 import com.example.partidasdefutebol.entities.StadiumFromController;
-import com.example.partidasdefutebol.exceptions.ConflictException;
+import com.example.partidasdefutebol.exceptions.CustomException;
 import com.example.partidasdefutebol.service.StadiumService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +21,7 @@ public class StadiumController {
         try {
             StadiumEntity savedStadiumEntity = stadiumService.saveStadium(stadiumFromController);
             return ResponseEntity.status(201).body(savedStadiumEntity);
-        } catch (ConflictException e) {
+        } catch (CustomException e) {
             return ResponseEntity.status(e.getStatusCode()).body(e.getMessage());
         }
     }
@@ -35,7 +35,7 @@ public class StadiumController {
         try {
             StadiumEntity updatedStadiumEntity = stadiumService.updateStadium(id, stadiumFromController);
             return ResponseEntity.status(200).body(updatedStadiumEntity);
-        } catch (ConflictException e) {
+        } catch (CustomException e) {
             return ResponseEntity.status(e.getStatusCode()).body(e.getMessage());
         }
     }
@@ -45,7 +45,7 @@ public class StadiumController {
         try {
             ResponseEntity<StadiumEntity> optionalStadium = stadiumService.retrieveStadiumInfo(id);
             return ResponseEntity.status(optionalStadium.getStatusCode()).body(optionalStadium.getBody());
-        } catch (ConflictException e) {
+        } catch (CustomException e) {
             return ResponseEntity.status(e.getStatusCode()).body(e.getMessage());
         }
     }

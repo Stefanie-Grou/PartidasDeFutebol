@@ -1,7 +1,7 @@
 package com.example.partidasdefutebol.tests.matches;
 
 import com.example.partidasdefutebol.entities.MatchEntity;
-import com.example.partidasdefutebol.exceptions.ConflictException;
+import com.example.partidasdefutebol.exceptions.CustomException;
 import com.example.partidasdefutebol.service.ClubService;
 import com.example.partidasdefutebol.service.StadiumService;
 import jakarta.transaction.Transactional;
@@ -31,7 +31,7 @@ public class matchesServiceTest {
 
     @Test
     public void shouldThrowException_BothClubsAreTheSame() {
-        ConflictException exception = assertThrows(ConflictException.class, () -> {
+        CustomException exception = assertThrows(CustomException.class, () -> {
             MatchEntity match = new MatchEntity();
             match.setHomeClubId(1L);
             match.setAwayClubId(1L);
@@ -49,7 +49,7 @@ public class matchesServiceTest {
 
     @Test
     public void throwsException_MatchDateIsInTheFuture() {
-        ConflictException exception = assertThrows(ConflictException.class, () -> {
+        CustomException exception = assertThrows(CustomException.class, () -> {
             MatchEntity match = new MatchEntity();
             match.setHomeClubId(1L);
             match.setAwayClubId(2L);
@@ -68,7 +68,7 @@ public class matchesServiceTest {
     @Test
     @Transactional
     public void throwsException_InvalidMatchIdToDelete() {
-        ConflictException exception = assertThrows(ConflictException.class, () -> {
+        CustomException exception = assertThrows(CustomException.class, () -> {
             matchService.deleteMatch(100L);
         });
 
@@ -78,7 +78,7 @@ public class matchesServiceTest {
 
     @Test
     public void throwsException_WontGetMatchData_InvalidMatchId() {
-        ConflictException exception = assertThrows(ConflictException.class, () -> {
+        CustomException exception = assertThrows(CustomException.class, () -> {
             matchService.getMatchById(100L);
         });
 
@@ -106,7 +106,7 @@ public class matchesServiceTest {
         MatchEntity matchBefore = matchService.getMatchById(matchId);
         assertThat(matchBefore).isNotNull();
 
-        ConflictException exception = assertThrows(ConflictException.class, () -> {
+        CustomException exception = assertThrows(CustomException.class, () -> {
             matchService.deleteMatch(matchId);
             matchService.getMatchById(matchId);
         });
@@ -126,7 +126,7 @@ public class matchesServiceTest {
         matchRequestedToUpdate.setStadiumId(1L);
         matchRequestedToUpdate.setMatchDate(LocalDateTime.now());
 
-        ConflictException exception = assertThrows(ConflictException.class, () -> {
+        CustomException exception = assertThrows(CustomException.class, () -> {
             matchService.updateMatch(matchId, matchRequestedToUpdate);
         });
         assertThat(exception.getStatusCode()).isEqualTo(404);
@@ -138,7 +138,7 @@ public class matchesServiceTest {
         Long matchId = 5L;
         LocalDateTime createdMatchDate = matchService.getMatchById(matchId).getMatchDate();
         Long stadiumId = matchService.getMatchById(matchId).getStadiumId();
-        ConflictException exception = assertThrows(ConflictException.class, () -> {
+        CustomException exception = assertThrows(CustomException.class, () -> {
             matchService.stadiumIsFreeForMatchOnDay(stadiumId, createdMatchDate);
         });
         assertThat(exception.getStatusCode()).isEqualTo(409);
@@ -150,7 +150,7 @@ public class matchesServiceTest {
         Long matchId = 5L;
         LocalDateTime createdMatchDate = matchService.getMatchById(matchId).getMatchDate();
         Long homeClubId = matchService.getMatchById(matchId).getHomeClubId();
-        ConflictException exception = assertThrows(ConflictException.class, () -> {
+        CustomException exception = assertThrows(CustomException.class, () -> {
             matchService.checkHomeClubRestPeriod(homeClubId, createdMatchDate);
         });
         assertThat(exception.getStatusCode()).isEqualTo(409);
@@ -162,7 +162,7 @@ public class matchesServiceTest {
         Long matchId = 5L;
         LocalDateTime createdMatchDate = matchService.getMatchById(matchId).getMatchDate();
         Long awayClubId = matchService.getMatchById(matchId).getAwayClubId();
-        ConflictException exception = assertThrows(ConflictException.class, () -> {
+        CustomException exception = assertThrows(CustomException.class, () -> {
             matchService.checkAwayClubRestPeriod(awayClubId, createdMatchDate);
         });
         assertThat(exception.getStatusCode()).isEqualTo(409);
@@ -179,7 +179,7 @@ public class matchesServiceTest {
         match.setStadiumId(1L);
         match.setMatchDate(LocalDateTime.now());
 
-        ConflictException exception = assertThrows(ConflictException.class, () -> {
+        CustomException exception = assertThrows(CustomException.class, () -> {
             matchService.isEachClubDifferent(match);
         });
         assertThat(exception.getStatusCode()).isEqualTo(400);
