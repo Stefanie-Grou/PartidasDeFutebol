@@ -4,7 +4,7 @@ import com.example.partidasdefutebol.entities.GoalSummary;
 import com.example.partidasdefutebol.entities.SummaryByOpponent;
 import com.example.partidasdefutebol.entities.ClubEntity;
 import com.example.partidasdefutebol.entities.Ranking;
-import com.example.partidasdefutebol.exceptions.ConflictException;
+import com.example.partidasdefutebol.exceptions.CustomException;
 import com.example.partidasdefutebol.repository.ClubRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -24,20 +24,19 @@ import static com.example.partidasdefutebol.util.isValidBrazilianState.isValidBr
 
 @Service
 public class ClubService {
-
     @Autowired
     private ClubRepository clubRepository;
 
-    public ClubEntity createClub(ClubEntity clubEntity) {
+    public void createClub(ClubEntity clubEntity) {
         if (!isValidBrazilianState(clubEntity.getStateAcronym())) {
-            throw new ConflictException("A sigla do estado é inválida.", 409);
+            throw new CustomException("A sigla do estado é inválida.", 409);
         }
-        return clubRepository.save(clubEntity);
+        clubRepository.save(clubEntity);
     }
 
-    public void doesClubExist(Long clubId) throws ConflictException {
+    public void doesClubExist(Long clubId) throws CustomException {
         if (!clubRepository.existsById(clubId)) {
-            throw new ConflictException("Clube " + clubId + " não encontrado na base de dados.", 404);
+            throw new CustomException("Clube " + clubId + " não encontrado na base de dados.", 404);
         }
     }
 
@@ -76,22 +75,22 @@ public class ClubService {
     public void wasClubCreatedBeforeGame(Long clubid,
                                          LocalDateTime matchDate) {
         if (clubRepository.findById(clubid).get().getCreatedOn().isAfter(ChronoLocalDate.from(matchDate))) {
-            throw new ConflictException("A data de criação do clube " + clubRepository.findById(clubid).get().getClubName() +
+            throw new CustomException("A data de criação do clube " + clubRepository.findById(clubid).get().getClubName() +
                     " deve ser anterior ao registro de alguma partida cadastrada.", 409);
         }
     }
 
     public void isClubInactive(ClubEntity clubEntity) throws ResponseStatusException {
         if (!clubEntity.getIsActive()) {
-            throw new ConflictException("O clube " + clubEntity.getClubName() + " está inativo", 409);
+            throw new CustomException("O clube " + clubEntity.getClubName() + " está inativo", 409);
         }
     }
 
-    public void wasClubCreatedAfterGame(Long clubId, ClubEntity clubEntity) throws ResponseStatusException {
-        Boolean isClubUpToUpdateCreatedOn = clubRepository.wasClubCreatedAfterGame(
-                clubEntity.getCreatedOn().atStartOfDay(), clubId);
-        if (!isClubUpToUpdateCreatedOn) {
-            throw new ConflictException("A nova data de criação do clube está posterior ao registro de alguma partida cadastrada.", 409);
+    public void wasClubCreatedAfterGame(Long clubId, ClubEntity clubEntity) throws CustomException {
+        if (clubRepository.wasClubCreatedAfterGame(
+                clubEntity.getCreatedOn().atStartOfDay(), clubId)) {
+            String message = "A nova data de criação do clube está posterior ao registro de alguma partida cadastrada.\nClube: {} Nova data de criação: {}\n{}";
+            throw new CustomException(message);
         }
     }
 
@@ -141,7 +140,7 @@ public class ClubService {
                 returnedRankingFromDatabase = fetchClubRankingByTotalOfPointsData();
                 break;
             default:
-                throw new ConflictException("Fator de classificação inválido", 409);
+                throw new CustomException("Fator de classificação inválido", 409);
         }
         return setReturnedRankingInfoIntoEntity(returnedRankingFromDatabase);
     }
@@ -157,6 +156,7 @@ public class ClubService {
     public List<Object[]> fetchClubRankingByTotalOfGoalsData() {
         return clubRepository.getRankingByTotalGoals();
     }
+
     public List<Object[]> fetchClubRankingByTotalOfPointsData() {
         return clubRepository.getRankingByTotalPoints();
     }

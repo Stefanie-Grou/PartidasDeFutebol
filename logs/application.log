@@ -1,0 +1,16 @@
+2025-07-31T17:11:52.157-03:00 ERROR 55948 --- [PartidasdeFutebol] [org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#0-1] c.e.p.service.ClubService                : com.example.partidasdefutebol.exceptions.CustomException: A nova data de criação do clube está posterior ao registro de alguma partida cadastrada.
+Clube: {} Nova data de criação: {}
+{}
+ Club ID: 60
+ClubEntity(id=null, clubName=SE Belford Roxo, stateAcronym=RJ, createdOn=2022-10-01, isActive=true)
+A nova data de criação do clube está posterior ao registro de alguma partida cadastrada.
+Clube: {} Nova data de criação: {}
+{}
+2025-07-31T17:12:42.152-03:00 ERROR 56081 --- [PartidasdeFutebol] [org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#0-1] c.e.p.service.ClubService                : com.example.partidasdefutebol.exceptions.CustomException: A nova data de criação do clube está posterior ao registro de alguma partida cadastrada.
+Clube: {} Nova data de criação: {}
+{}
+ Club ID: 60
+ClubEntity(id=null, clubName=SE Belford Roxo, stateAcronym=RJ, createdOn=2022-10-01, isActive=true)
+A nova data de criação do clube está posterior ao registro de alguma partida cadastrada.
+Clube: {} Nova data de criação: {}
+{}

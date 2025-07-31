@@ -2,16 +2,14 @@ package com.example.partidasdefutebol.entities;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDate;
 
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
 public class ClubEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
