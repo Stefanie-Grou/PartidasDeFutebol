@@ -1,4 +1,4 @@
-INSERT INTO match_entity
+INSERT INTO matches
 (home_club_id, away_club_id, home_club_number_of_goals, away_club_number_of_goals, stadium_id, match_date)
 VALUES
     (1, 2, 1, 0, 1, '2022-12-01 00:00:00'),

@@ -1,4 +1,4 @@
-package com.example.partidasdefutebol.entities;
+package com.example.partidasdefutebol.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
@@ -8,7 +8,7 @@ import lombok.Setter;
 
 @NoArgsConstructor
 @AllArgsConstructor
-public class Ranking {
+public class RankingDTO {
     @Getter
     @Setter
     @JsonProperty("clube")

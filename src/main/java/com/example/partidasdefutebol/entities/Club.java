@@ -1,16 +1,19 @@
 package com.example.partidasdefutebol.entities;
 
+import com.example.partidasdefutebol.util.CheckValidBrazilianState;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
 
 import java.time.LocalDate;
 
+import static com.example.partidasdefutebol.util.CheckValidBrazilianState.isValidBrazilianState;
+
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class ClubEntity {
+public class Club {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Getter
@@ -20,7 +23,7 @@ public class ClubEntity {
     @Getter
     @NotBlank(message = "O nome do clube é mandatório para o cadastro")
     @Size(min = 2, max = 50, message = "O nome do clube deve ser de, no mínimo, duas letras.")
-    private String clubName;
+    private String name;
 
     @Getter
     @NotBlank(message = "O estado do clube é mandatório para o cadastro")
@@ -37,6 +40,7 @@ public class ClubEntity {
     private Boolean isActive;
 
     public void setStateAcronym(String stateAcronym) {
+        isValidBrazilianState(stateAcronym);
         this.stateAcronym = stateAcronym.toUpperCase();
     }
 }

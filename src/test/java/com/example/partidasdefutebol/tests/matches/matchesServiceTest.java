@@ -1,6 +1,6 @@
 package com.example.partidasdefutebol.tests.matches;
 
-import com.example.partidasdefutebol.entities.MatchEntity;
+import com.example.partidasdefutebol.entities.Match;
 import com.example.partidasdefutebol.exceptions.CustomException;
 import com.example.partidasdefutebol.service.ClubService;
 import com.example.partidasdefutebol.service.StadiumService;
@@ -32,7 +32,7 @@ public class matchesServiceTest {
     @Test
     public void shouldThrowException_BothClubsAreTheSame() {
         CustomException exception = assertThrows(CustomException.class, () -> {
-            MatchEntity match = new MatchEntity();
+            Match match = new Match();
             match.setHomeClubId(1L);
             match.setAwayClubId(1L);
             match.setHomeClubNumberOfGoals(0L);
@@ -50,7 +50,7 @@ public class matchesServiceTest {
     @Test
     public void throwsException_MatchDateIsInTheFuture() {
         CustomException exception = assertThrows(CustomException.class, () -> {
-            MatchEntity match = new MatchEntity();
+            Match match = new Match();
             match.setHomeClubId(1L);
             match.setAwayClubId(2L);
             match.setHomeClubNumberOfGoals(0L);
@@ -88,7 +88,7 @@ public class matchesServiceTest {
 
     @Test
     public void returnsMatchInfoSuccessfully() {
-        MatchEntity match = matchService.getMatchById(5L);
+        Match match = matchService.getMatchById(5L);
 
         assertThat(match).isNotNull();
         assertThat(match.getHomeClubId()).isEqualTo(4L);
@@ -103,7 +103,7 @@ public class matchesServiceTest {
     @Transactional
     public void shouldDeleteMatchSuccessfullyAndThrowException() {
         Long matchId = 6L;
-        MatchEntity matchBefore = matchService.getMatchById(matchId);
+        Match matchBefore = matchService.getMatchById(matchId);
         assertThat(matchBefore).isNotNull();
 
         CustomException exception = assertThrows(CustomException.class, () -> {
@@ -118,7 +118,7 @@ public class matchesServiceTest {
     @Transactional
     public void throwsException_InvalidMatchIdToUpdate() {
         Long matchId = 100L;
-        MatchEntity matchRequestedToUpdate = new MatchEntity();
+        Match matchRequestedToUpdate = new Match();
         matchRequestedToUpdate.setHomeClubId(1L);
         matchRequestedToUpdate.setAwayClubId(2L);
         matchRequestedToUpdate.setHomeClubNumberOfGoals(0L);
@@ -171,7 +171,7 @@ public class matchesServiceTest {
 
     @Test
     public void throwsException_BothClubsAreTheSame() {
-        MatchEntity match = new MatchEntity();
+        Match match = new Match();
         match.setHomeClubId(1L);
         match.setAwayClubId(1L);
         match.setHomeClubNumberOfGoals(0L);

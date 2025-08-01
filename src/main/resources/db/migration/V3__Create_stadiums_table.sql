@@ -1,10 +1,10 @@
-CREATE TABLE stadium_entity (
-                          stadium_id BIGINT NOT NULL AUTO_INCREMENT,
-                          stadium_name VARCHAR(255) NOT NULL,
-                          stadium_state VARCHAR(2) NOT NULL,
+CREATE TABLE stadium (
+                          id BIGINT NOT NULL AUTO_INCREMENT,
+                          name VARCHAR(255) NOT NULL,
+                          state_acronym VARCHAR(2) NOT NULL,
                           cep VARCHAR(9) NOT NULL,
                           city VARCHAR(255) NOT NULL,
                           street VARCHAR(255) NOT NULL,
-                          PRIMARY KEY (stadium_id),
-                          UNIQUE KEY (stadium_name, stadium_state)
+                          PRIMARY KEY (id),
+                          UNIQUE KEY (name, state_acronym)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

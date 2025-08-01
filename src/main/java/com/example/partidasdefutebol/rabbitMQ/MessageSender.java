@@ -13,7 +13,7 @@ public class MessageSender {
         this.rabbitTemplate = rabbitTemplate;
     }
 
-    public void sendMessage(String message) {
+    public void sendMessageToQueue(String message) {
         rabbitTemplate.convertAndSend(RabbitConfiguration.QUEUE_NAME, message);
         System.out.println("Message sent: " + message);
     }

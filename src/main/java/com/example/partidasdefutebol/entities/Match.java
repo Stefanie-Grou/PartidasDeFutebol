@@ -14,11 +14,11 @@ import java.time.LocalDateTime;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
-public class MatchEntity {
+public class Match {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Getter
-    private Long matchId;
+    private Long id;
 
     @NotNull
     @Getter
