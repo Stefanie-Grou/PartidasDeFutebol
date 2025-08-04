@@ -1,5 +1,8 @@
 package com.example.partidasdefutebol.exceptions;
 
+import com.example.partidasdefutebol.service.ClubService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.amqp.AmqpRejectAndDontRequeueException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -16,6 +19,8 @@ import java.util.Map;
 
 @ControllerAdvice
 public class CustomExceptionHandler {
+
+    private static final Logger logger = LoggerFactory.getLogger(ClubService.class);
 
     @ExceptionHandler(CustomException.class)
     public ResponseEntity<ErrorResponse> handleConflictException(CustomException ex) {
@@ -53,6 +58,7 @@ public class CustomExceptionHandler {
     public ResponseEntity<Map<String, String>> handleAmpqException(AmqpRejectAndDontRequeueException ex) {
         Map<String, String> errors = new HashMap<>();
         errors.put("message", ex.getMessage());
+        logger.error(ex.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
     }
 }

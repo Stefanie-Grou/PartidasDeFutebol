@@ -6,17 +6,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.AmqpRejectAndDontRequeueException;
 
-import java.util.Arrays;
+import java.util.stream.Stream;
 
 public class CheckValidBrazilianState {
     private static final Logger logger = LoggerFactory.getLogger(ClubService.class);
 
-    public static boolean isValidBrazilianState(String stateAcronym) {
-        for (BrazilianStates estado : BrazilianStates.values()) {
-            if (estado.name().equalsIgnoreCase(stateAcronym)) {
-                return true;
-            }
+    public static void isValidBrazilianState(String stateAcronym) {
+        if (Stream.of(BrazilianStates.values()).filter
+                (state -> state.name().equalsIgnoreCase(stateAcronym)).findFirst().isEmpty()) {
+            throw new AmqpRejectAndDontRequeueException("O estado " + stateAcronym + " é inválido.");
         }
-        return false;
     }
 }

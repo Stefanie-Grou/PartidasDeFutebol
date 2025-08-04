@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -20,30 +21,30 @@ public interface ClubRepository extends JpaRepository<Club, Long> {
             + "(c.isActive = :isActive OR :isActive IS NULL)")
     Page<Club> findByFilters(String name, String state, Boolean isActive, Pageable pageable);
 
-    @Query("SELECT CASE WHEN COUNT(m.matchDate) = 0 THEN true ELSE false END FROM Match m " +
+    @Query("SELECT CASE WHEN COUNT(m.matchDate) <= 0 THEN true ELSE false END FROM Matches m " +
             "WHERE (m.awayClubId = :clubId OR m.homeClubId = :clubId) AND m.matchDate <= :newClubCreatedDate")
-    Boolean wasClubCreatedAfterGame(LocalDate newClubCreatedDate, Long clubId);
+    Boolean wasClubCreatedAfterGame(LocalDateTime newClubCreatedDate, Long clubId);
 
     @Query("SELECT CASE " +
             "WHEN (m.homeClubId = :clubId AND m.homeClubNumberOfGoals > m.awayClubNumberOfGoals) OR " +
             "(m.awayClubId = :clubId AND m.homeClubNumberOfGoals < m.awayClubNumberOfGoals) THEN 'vitória' " +
             "WHEN m.homeClubNumberOfGoals = m.awayClubNumberOfGoals THEN 'empate' " +
             "ELSE 'derrota' END AS resultado " +
-            "FROM Match m " +
+            "FROM Matches m " +
             "WHERE m.awayClubId = :clubId OR m.homeClubId = :clubId")
     List<String> findMatchResultsByClubId(@Param("clubId") Long clubId);
 
     @Query("SELECT " +
             "COALESCE(SUM(CASE WHEN m.homeClubId = ?1 THEN m.homeClubNumberOfGoals " +
             "ELSE m.awayClubNumberOfGoals END),0) AS totalGolsFeitos " +
-            "FROM Match m " +
+            "FROM Matches m " +
             "WHERE m.homeClubId = :clubId OR m.awayClubId = :clubId")
     Integer findTotalPositiveGoalsByClubId(@Param("clubId") Long clubId);
 
     @Query("SELECT " +
             "COALESCE(SUM(CASE WHEN m.homeClubId = ?1 THEN m.awayClubNumberOfGoals " +
             "ELSE m.homeClubNumberOfGoals END),0) AS totalGolsSofridos " +
-            "FROM Match m " +
+            "FROM Matches m " +
             "WHERE m.homeClubId = :clubId OR m.awayClubId = :clubId")
     Integer findTotalNegativeGoalsByClubId(@Param("clubId") Long clubId);
 
@@ -78,7 +79,7 @@ public interface ClubRepository extends JpaRepository<Club, Long> {
             "        ELSE m.homeClubNumberOfGoals " +
             "    END) AS golsSofridos " +
             "FROM " +
-            "    Match m " +
+            "    Matches m " +
             "JOIN " +
             "    Club d ON m.homeClubId = d.id " +
             "JOIN " +
@@ -91,7 +92,7 @@ public interface ClubRepository extends JpaRepository<Club, Long> {
 
     @Query("""
             SELECT c.name AS clubName, COUNT(m) AS totalGames \
-            FROM Match m \
+            FROM Matches m \
             JOIN Club c ON c.id = m.homeClubId OR c.id = m.awayClubId \
             GROUP BY c.id
             HAVING COUNT(m) > 0
@@ -107,7 +108,7 @@ public interface ClubRepository extends JpaRepository<Club, Long> {
                         WHEN m.homeClubNumberOfGoals > m.awayClubNumberOfGoals THEN m.homeClubId\s
                         WHEN m.homeClubNumberOfGoals < m.awayClubNumberOfGoals THEN m.awayClubId\s
                     END AS clubId
-                FROM Match m\s
+                FROM Matches m\s
                 WHERE m.homeClubNumberOfGoals <> m.awayClubNumberOfGoals
             ) AS winners
             INNER JOIN Club c ON c.id = winners.clubId
@@ -118,12 +119,12 @@ public interface ClubRepository extends JpaRepository<Club, Long> {
     @Query("""
             SELECT c.name, goalsPerClub.totalGoals FROM (
             SELECT m.homeClubId AS clubId, SUM(m.homeClubNumberOfGoals) as totalGoals
-            FROM Match m\s
+            FROM Matches m\s
             GROUP BY m.homeClubId\s
             HAVING SUM(m.homeClubNumberOfGoals) > 0\s
             UNION\s
             SELECT m.awayClubId AS clubId, SUM(m.awayClubNumberOfGoals)\s
-            FROM Match m\s
+            FROM Matches m\s
             GROUP BY m.awayClubId\s
             HAVING SUM(m.awayClubNumberOfGoals) > 0
             ) as goalsPerClub

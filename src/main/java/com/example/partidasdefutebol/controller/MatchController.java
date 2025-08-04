@@ -1,6 +1,6 @@
 package com.example.partidasdefutebol.controller;
 
-import com.example.partidasdefutebol.entities.Match;
+import com.example.partidasdefutebol.entities.Matches;
 import com.example.partidasdefutebol.exceptions.CustomException;
 import com.example.partidasdefutebol.service.MatchService;
 import jakarta.validation.Valid;
@@ -18,9 +18,9 @@ public class MatchController {
 
     // Requisito I#6 -> Criar uma partida
     @PostMapping
-    public ResponseEntity<?> createMatch(@Valid @RequestBody Match matchEntity) {
+    public ResponseEntity<?> createMatch(@Valid @RequestBody Matches matchEntity) {
         try {
-            Match savedMatchEntity = matchService.createMatch(matchEntity);
+            Matches savedMatchEntity = matchService.createMatch(matchEntity);
             return ResponseEntity.status(201).body(savedMatchEntity);
         } catch (CustomException e) {
             return ResponseEntity.status(e.getStatusCode()).body(e.getMessage());
@@ -30,9 +30,9 @@ public class MatchController {
     // Requisito I#7 -> Atualizar uma partida
     @PutMapping
     @RequestMapping("/{id}")
-    public ResponseEntity<?> updateMatchById(@PathVariable Long id, @RequestBody Match requestedToUpdateMatchEntity) {
+    public ResponseEntity<?> updateMatchById(@PathVariable Long id, @RequestBody Matches requestedToUpdateMatchEntity) {
         try {
-            Match updatedMatchEntity = matchService.updateMatch(id, requestedToUpdateMatchEntity);
+            Matches updatedMatchEntity = matchService.updateMatch(id, requestedToUpdateMatchEntity);
             return ResponseEntity.status(200).body(updatedMatchEntity);
         } catch (CustomException e) {
             return ResponseEntity.status(e.getStatusCode()).body(e.getMessage());
@@ -63,7 +63,7 @@ public class MatchController {
 
     // Requisito I#10 -> Buscar todas as partidas + III#1 -> Adicionar goleadas
     @GetMapping
-    public ResponseEntity<Page<Match>> getMatchesByFilters(
+    public ResponseEntity<Page<Matches>> getMatchesByFilters(
             @RequestParam(required = false) Long club,
             @RequestParam(required = false) Long stadium,
             @RequestParam(defaultValue = "0") int page,
@@ -72,7 +72,7 @@ public class MatchController {
             @RequestParam(defaultValue = "asc") String sortOrder,
             @RequestParam(defaultValue = "false") Boolean isRout,
             @RequestParam(required = false) String showOnly) {
-        Page<Match> matches = matchService.getMatches
+        Page<Matches> matches = matchService.getMatches
                 (club, stadium, page, size, sortField, sortOrder, isRout, showOnly);
         return ResponseEntity.ok(matches);
     }

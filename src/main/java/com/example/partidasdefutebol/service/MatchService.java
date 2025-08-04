@@ -2,7 +2,7 @@ package com.example.partidasdefutebol.service;
 
 import com.example.partidasdefutebol.dto.ConfrontationsDTO;
 import com.example.partidasdefutebol.dto.RoutsDTO;
-import com.example.partidasdefutebol.entities.Match;
+import com.example.partidasdefutebol.entities.Matches;
 import com.example.partidasdefutebol.exceptions.CustomException;
 import com.example.partidasdefutebol.repository.MatchRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +31,7 @@ public class MatchService {
     @Autowired
     private StadiumService stadiumService;
 
-    public Match createMatch(Match matchEntity) {
+    public Matches createMatch(Matches matchEntity) {
         CallCommonValidationForMatch(matchEntity);
         clubService.wasClubCreatedBeforeGame(matchEntity.getHomeClubId(), matchEntity.getMatchDate());
         clubService.wasClubCreatedBeforeGame(matchEntity.getAwayClubId(), matchEntity.getMatchDate());
@@ -42,7 +42,7 @@ public class MatchService {
         return matchRepository.save(matchEntity);
     }
 
-    public void isEachClubDifferent(Match matchEntity) throws CustomException {
+    public void isEachClubDifferent(Matches matchEntity) throws CustomException {
         if (Objects.equals(matchEntity.getAwayClubId(), matchEntity.getHomeClubId())) {
             throw new CustomException("Os clubes devem ser diferentes", 400);
         }
@@ -77,11 +77,11 @@ public class MatchService {
         return true;
     }
 
-    public Match updateMatch(Long matchId, Match requestedToUpdateMatchEntity) {
+    public Matches updateMatch(Long matchId, Matches requestedToUpdateMatchEntity) {
         getMatchById(matchId);
         CallCommonValidationForMatch(requestedToUpdateMatchEntity);
         validateIfNewMatchDateIsInTheFuture(requestedToUpdateMatchEntity);
-        Match existingMatchEntity = matchRepository.findById(matchId).get();
+        Matches existingMatchEntity = matchRepository.findById(matchId).get();
         existingMatchEntity.setHomeClubId(requestedToUpdateMatchEntity.getHomeClubId());
         existingMatchEntity.setAwayClubId(requestedToUpdateMatchEntity.getAwayClubId());
         existingMatchEntity.setHomeClubNumberOfGoals(requestedToUpdateMatchEntity.getHomeClubNumberOfGoals());
@@ -91,13 +91,13 @@ public class MatchService {
         return matchRepository.saveAndFlush(existingMatchEntity);
     }
 
-    public void validateIfNewMatchDateIsInTheFuture(Match requestedToUpdateMatchEntity) throws CustomException {
+    public void validateIfNewMatchDateIsInTheFuture(Matches requestedToUpdateMatchEntity) throws CustomException {
         if (requestedToUpdateMatchEntity.getMatchDate().isAfter(LocalDateTime.now())) {
             throw new CustomException("A data da partida não pode ser posterior ao dia atual.", 400);
         }
     }
 
-    public void CallCommonValidationForMatch(Match matchEntity) {
+    public void CallCommonValidationForMatch(Matches matchEntity) {
         isEachClubDifferent(matchEntity);
         clubService.wasClubCreatedBeforeGame(matchEntity.getHomeClubId(), matchEntity.getMatchDate());
         clubService.wasClubCreatedBeforeGame(matchEntity.getAwayClubId(), matchEntity.getMatchDate());
@@ -114,14 +114,14 @@ public class MatchService {
         matchRepository.deleteById(matchId);
     }
 
-    public Match getMatchById(Long matchId) throws ResponseStatusException {
+    public Matches getMatchById(Long matchId) throws ResponseStatusException {
         if (matchRepository.findById(matchId).isEmpty()) {
             throw new CustomException("A partida não existe na base de dados.", 404);
         }
         return matchRepository.findById(matchId).get();
     }
 
-    public Page<Match> getMatches
+    public Page<Matches> getMatches
             (Long club, Long stadium, int page, int size, String sortField, String sortOrder,
              Boolean isRout, String showOnly) {
         Sort sort = Sort.by(sortField);

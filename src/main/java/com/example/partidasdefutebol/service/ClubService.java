@@ -21,8 +21,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static com.example.partidasdefutebol.util.CheckValidBrazilianState.isValidBrazilianState;
-
 @Service
 public class ClubService {
     @Autowired
@@ -34,7 +32,7 @@ public class ClubService {
 
     public void doesClubExist(Long clubId) throws CustomException {
         if (!clubRepository.existsById(clubId)) {
-            throw new CustomException("Clube " + clubId + " não encontrado na base de dados.", 404);
+            throw new AmqpRejectAndDontRequeueException("Clube " + clubId + " nao encontrado na base de dados.");
         }
     }
 
@@ -72,9 +70,10 @@ public class ClubService {
 
     public void wasClubCreatedBeforeGame(Long clubid,
                                          LocalDateTime matchDate) {
-        if (clubRepository.findById(clubid).get().getCreatedOn().isAfter(ChronoLocalDate.from(matchDate))) {
-            throw new CustomException("A data de criação do clube " + clubRepository.findById(clubid).get().getName() +
-                    " deve ser anterior ao registro de alguma partida cadastrada.", 409);
+        if (!clubRepository.findById(clubid).get().getCreatedOn().isAfter(ChronoLocalDate.from(matchDate))) {
+            String message = "A data de criação do clube " + clubRepository.findById(clubid).get().getName() +
+                    " deve ser anterior ao registro de alguma partida cadastrada.";
+            throw new AmqpRejectAndDontRequeueException(message);
         }
     }
 
@@ -85,8 +84,7 @@ public class ClubService {
     }
 
     public void wasClubCreatedAfterGame(Long clubId, Club clubEntity) throws CustomException {
-        if (clubRepository.wasClubCreatedAfterGame(
-                clubEntity.getCreatedOn(), clubId)) {
+        if (!clubRepository.wasClubCreatedAfterGame(clubEntity.getCreatedOn().atStartOfDay(), clubId)) {
             String message = "A nova data de criação do clube está posterior ao registro de alguma partida cadastrada.\nClube: {} Nova data de criação: {}\n{}";
             throw new CustomException(message);
         }

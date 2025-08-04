@@ -1,6 +1,6 @@
 package com.example.partidasdefutebol.repository;
 
-import com.example.partidasdefutebol.entities.Match;
+import com.example.partidasdefutebol.entities.Matches;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -12,27 +12,27 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
-public interface MatchRepository extends JpaRepository<Match, Long> {
+public interface MatchRepository extends JpaRepository<Matches, Long> {
 
-    @Query("SELECT m FROM Match m WHERE m.stadiumId = ?1 AND m.matchDate = ?2")
-    List<Match> findByStadiumAndDate(Long stadiumId, LocalDateTime desiredMatchDate);
+    @Query("SELECT m FROM Matches m WHERE m.stadiumId = ?1 AND m.matchDate = ?2")
+    List<Matches> findByStadiumAndDate(Long stadiumId, LocalDateTime desiredMatchDate);
 
     @Query("SELECT " +
-            "MAX(m.matchDate) FROM Match m " +
+            "MAX(m.matchDate) FROM Matches m " +
             "WHERE m.homeClubId = ?1 AND m.matchDate <= ?2")
     LocalDateTime hoursSinceLastGameForHomeClub(Long clubId, LocalDateTime desiredMatchDate);
 
-    @Query("SELECT MAX(m.matchDate) FROM Match m WHERE m.awayClubId = ?1 AND m.matchDate <= ?2")
+    @Query("SELECT MAX(m.matchDate) FROM Matches m WHERE m.awayClubId = ?1 AND m.matchDate <= ?2")
     LocalDateTime hoursSinceLastGameForAwayClub(Long clubId, LocalDateTime desiredMatchDate);
 
-    @Query("SELECT m FROM Match m WHERE \n" +
+    @Query("SELECT m FROM Matches m WHERE \n" +
             "    (:club IS NULL OR ((:showOnly = 'home' AND m.homeClubId = :club) OR " +
             "(:showOnly = 'away' AND m.awayClubId = :club) OR (:showOnly NOT IN ('home', 'away') AND (" +
             "(m.homeClubId = :club) OR m.awayClubId = :club)))) AND\n" +
             "    (:stadium IS NULL OR m.stadiumId = :stadium) AND " +
             " (:isRout = false OR (m.homeClubNumberOfGoals - m.awayClubNumberOfGoals >= 3 " +
             " OR m.awayClubNumberOfGoals - m.homeClubNumberOfGoals >= 3))")
-    Page<Match> findByFilters(
+    Page<Matches> findByFilters(
             @Param("club") Long club, @Param("stadium") Long stadium, Pageable pageable,
             @Param("isRout") boolean isRout, @Param("showOnly") String showOnly);
 
@@ -47,7 +47,7 @@ public interface MatchRepository extends JpaRepository<Match, Long> {
             "        WHEN m.homeClubNumberOfGoals < m.awayClubNumberOfGoals THEN a.name " +
             "    END " +
             "FROM " +
-            "    Match m " +
+            "    Matches m " +
             "JOIN " +
             "    Club h on h.id = m.homeClubId " +
             "JOIN " +
@@ -62,7 +62,7 @@ public interface MatchRepository extends JpaRepository<Match, Long> {
             " a.name, ' ', m.awayClubNumberOfGoals) " +
             ", s.name " +
             ", DATE_FORMAT(m.matchDate, '%d-%m-%Y') " +
-            "from Match m " +
+            "from Matches m " +
             "inner join Club h on h.id = m.homeClubId " +
             "inner join Club a on a.id = m.awayClubId " +
             "inner join Stadium s on s.id = m.stadiumId " +

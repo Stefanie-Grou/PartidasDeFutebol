@@ -33,9 +33,7 @@ public class ClubController {
 
     @PostMapping
     public ResponseEntity<?> createClub(@Valid @RequestBody Club clubEntity) throws Exception {
-        if (!isValidBrazilianState(clubEntity.getStateAcronym())) {
-            throw new AmqpRejectAndDontRequeueException("O estado " + clubEntity.getStateAcronym() + " é inválido.");
-        }
+        isValidBrazilianState(clubEntity.getStateAcronym());
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
         QueueMessageDTO queueMessage = new QueueMessageDTO("CREATE", clubEntity, null);
@@ -46,13 +44,12 @@ public class ClubController {
 
     @PutMapping("/{id}")
     public ResponseEntity<?> updateClubById
-            //TODO: as I'm using a queue, is it necessary to use @pathvariable?
             (@PathVariable Long id, @Valid @RequestBody Club requestedToUpdateClubEntity)
             throws JsonProcessingException {
+        clubService.doesClubExist(id);
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
         QueueMessageDTO queueMessage = new QueueMessageDTO("UPDATE", requestedToUpdateClubEntity, id);
-        //TODO: This query is returning null, which is throwing exception and infinitely requeuing/reprocessing the message
         messageSender.sendMessageToQueue(objectMapper.writeValueAsString(queueMessage));
         System.out.println("Message sent: " + requestedToUpdateClubEntity.getName());
         return ResponseEntity.status(202).body("Aguardando processamento");
