@@ -1,8 +1,8 @@
 package com.example.partidasdefutebol.service;
 
-import com.example.partidasdefutebol.entities.AddressEntity;
-import com.example.partidasdefutebol.entities.StadiumEntity;
-import com.example.partidasdefutebol.entities.StadiumFromController;
+import com.example.partidasdefutebol.dto.AddressDTO;
+import com.example.partidasdefutebol.entities.Stadium;
+import com.example.partidasdefutebol.dto.ControllerStadiumDTO;
 import com.example.partidasdefutebol.exceptions.CustomException;
 import com.example.partidasdefutebol.repository.StadiumRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,42 +21,42 @@ public class StadiumService {
     @Autowired
     private StadiumRepository stadiumRepository;
 
-    public StadiumEntity saveStadium(StadiumFromController stadiumFromController) {
-        AddressEntity addressInfo = AddressSearchService.findFullAddressByCep(stadiumFromController.getCep());
-        StadiumEntity stadium = new StadiumEntity();
-        stadium.setStadiumName(stadiumFromController.getStadiumName());
-        stadium.setStadiumState(addressInfo.getState());
+    public Stadium saveStadium(ControllerStadiumDTO stadiumFromController) {
+        AddressDTO addressInfo = AddressSearchService.findFullAddressByCep(stadiumFromController.getCep());
+        Stadium stadium = new Stadium();
+        stadium.setName(stadiumFromController.getStadiumName());
+        stadium.setStateAcronym(addressInfo.getState());
         stadium.setStreet(addressInfo.getStreet());
         stadium.setCity(addressInfo.getCity());
         stadium.setCep(addressInfo.getCep());
         return stadiumRepository.save(stadium);
     }
 
-    public StadiumEntity updateStadium(
+    public Stadium updateStadium(
             Long stadiumId,
-            StadiumFromController requestedToUpdateStadiumEntity) {
+            ControllerStadiumDTO requestedToUpdateStadiumEntity) {
         doesStadiumExist(stadiumId);
-        StadiumEntity existingStadiumEntity = stadiumRepository.findById(stadiumId).get();
-        AddressEntity addressInfo = AddressSearchService.findFullAddressByCep(requestedToUpdateStadiumEntity.getCep());
+        Stadium existingStadiumEntity = stadiumRepository.findById(stadiumId).get();
+        AddressDTO addressInfo = AddressSearchService.findFullAddressByCep(requestedToUpdateStadiumEntity.getCep());
         existingStadiumEntity.setStreet(addressInfo.getStreet());
         existingStadiumEntity.setCity(addressInfo.getCity());
         existingStadiumEntity.setCep(addressInfo.getCep());
-        existingStadiumEntity.setStadiumState(addressInfo.getState());
-        existingStadiumEntity.setStadiumName(requestedToUpdateStadiumEntity.getStadiumName());
+        existingStadiumEntity.setStateAcronym(addressInfo.getState());
+        existingStadiumEntity.setName(requestedToUpdateStadiumEntity.getStadiumName());
         return stadiumRepository.saveAndFlush(existingStadiumEntity);
     }
 
-    public ResponseEntity<StadiumEntity> retrieveStadiumInfo(Long requestedStadiumId) {
-        Optional<StadiumEntity> optionalStadium = stadiumRepository.findById(requestedStadiumId);
+    public ResponseEntity<Stadium> retrieveStadiumInfo(Long requestedStadiumId) {
+        Optional<Stadium> optionalStadium = stadiumRepository.findById(requestedStadiumId);
         if (optionalStadium.isPresent()) {
-            StadiumEntity stadiumEntity = optionalStadium.get();
+            Stadium stadiumEntity = optionalStadium.get();
             return ResponseEntity.ok(stadiumEntity);
         } else {
             throw new CustomException("O estádio não foi encontrado na base de dados.", 404);
         }
     }
 
-    public Page<StadiumEntity> getStadiums
+    public Page<Stadium> getStadiums
             (String name, String state, int page, int size, String sortField, String sortOrder) {
         Sort sort = Sort.by(sortField);
         if ("desc".equalsIgnoreCase(sortOrder)) {

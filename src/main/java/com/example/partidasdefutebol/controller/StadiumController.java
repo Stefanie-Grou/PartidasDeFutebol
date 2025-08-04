@@ -1,7 +1,7 @@
 package com.example.partidasdefutebol.controller;
 
-import com.example.partidasdefutebol.entities.StadiumEntity;
-import com.example.partidasdefutebol.entities.StadiumFromController;
+import com.example.partidasdefutebol.entities.Stadium;
+import com.example.partidasdefutebol.dto.ControllerStadiumDTO;
 import com.example.partidasdefutebol.exceptions.CustomException;
 import com.example.partidasdefutebol.service.StadiumService;
 import jakarta.validation.Valid;
@@ -17,9 +17,9 @@ public class StadiumController {
     private StadiumService stadiumService;
 
     @PostMapping
-    public ResponseEntity<?> save(@Valid @RequestBody StadiumFromController stadiumFromController) {
+    public ResponseEntity<?> saveStadium(@Valid @RequestBody ControllerStadiumDTO stadiumFromController) {
         try {
-            StadiumEntity savedStadiumEntity = stadiumService.saveStadium(stadiumFromController);
+            Stadium savedStadiumEntity = stadiumService.saveStadium(stadiumFromController);
             return ResponseEntity.status(201).body(savedStadiumEntity);
         } catch (CustomException e) {
             return ResponseEntity.status(e.getStatusCode()).body(e.getMessage());
@@ -28,12 +28,12 @@ public class StadiumController {
 
     @PutMapping
     @RequestMapping("/{id}")
-    public ResponseEntity<?> update(
+    public ResponseEntity<?> updateStadium(
             @PathVariable Long id,
-            @Valid @RequestBody StadiumFromController stadiumFromController
+            @Valid @RequestBody ControllerStadiumDTO stadiumFromController
     ) {
         try {
-            StadiumEntity updatedStadiumEntity = stadiumService.updateStadium(id, stadiumFromController);
+            Stadium updatedStadiumEntity = stadiumService.updateStadium(id, stadiumFromController);
             return ResponseEntity.status(200).body(updatedStadiumEntity);
         } catch (CustomException e) {
             return ResponseEntity.status(e.getStatusCode()).body(e.getMessage());
@@ -41,9 +41,9 @@ public class StadiumController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> findById(@PathVariable Long id) {
+    public ResponseEntity<?> findStadiumById(@PathVariable Long id) {
         try {
-            ResponseEntity<StadiumEntity> optionalStadium = stadiumService.retrieveStadiumInfo(id);
+            ResponseEntity<Stadium> optionalStadium = stadiumService.retrieveStadiumInfo(id);
             return ResponseEntity.status(optionalStadium.getStatusCode()).body(optionalStadium.getBody());
         } catch (CustomException e) {
             return ResponseEntity.status(e.getStatusCode()).body(e.getMessage());
@@ -51,7 +51,7 @@ public class StadiumController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<StadiumEntity>> getStadiums(
+    public ResponseEntity<Page<Stadium>> getStadiumsByFilters(
             @RequestParam(required = false) String name,
             @RequestParam(required = false) String state,
             @RequestParam(defaultValue = "0") int page,
@@ -59,7 +59,7 @@ public class StadiumController {
             @RequestParam(defaultValue = "stadiumName") String sortStadiumsByField,
             @RequestParam(defaultValue = "asc") String sortOrder) {
 
-        Page<StadiumEntity> stadiums = stadiumService.getStadiums(name, state, page, size, sortStadiumsByField, sortOrder);
+        Page<Stadium> stadiums = stadiumService.getStadiums(name, state, page, size, sortStadiumsByField, sortOrder);
         return ResponseEntity.ok(stadiums);
     }
 }

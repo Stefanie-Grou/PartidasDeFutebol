@@ -1,4 +1,4 @@
-INSERT INTO club_entity (club_name, state_acronym, created_on, is_active)
+INSERT INTO club (name, state_acronym, created_on, is_active)
 VALUES ('Botafogo-SP', 'SP', '1918-01-01', FALSE),
        ('Novorizontino', 'SP', '2010-04-02', TRUE),
        ('Figueirense', 'SC', '1921-10-12', TRUE),

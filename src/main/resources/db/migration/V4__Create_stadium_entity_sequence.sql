@@ -1,7 +1,7 @@
-CREATE TABLE stadiums_seq (
+CREATE TABLE stadium_seq (
                           id BIGINT NOT NULL AUTO_INCREMENT,
                           next_val BIGINT NOT NULL,
                           PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-INSERT INTO stadiums_seq (next_val) VALUES (1);
+INSERT INTO stadium_seq (next_val) VALUES (1);

@@ -1,8 +1,8 @@
 package com.example.partidasdefutebol.tests.club;
 
 import com.example.partidasdefutebol.controller.ClubController;
-import com.example.partidasdefutebol.entities.GoalSummary;
-import com.example.partidasdefutebol.entities.ClubEntity;
+import com.example.partidasdefutebol.dto.GoalSummaryDTO;
+import com.example.partidasdefutebol.entities.Club;
 import com.example.partidasdefutebol.service.ClubService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -50,7 +50,7 @@ public class ClubControllerTest {
     @Test
     @Transactional
     public void shouldCreateClub() throws Exception {
-        ClubEntity clubEntity = new ClubEntity();
+        Club clubEntity = new Club();
         clubEntity.setClubName("Coritiba");
         clubEntity.setStateAcronym("AC");
         clubEntity.setCreatedOn(LocalDate.of(2023, 1, 1));
@@ -70,7 +70,7 @@ public class ClubControllerTest {
 
     @Test
     public void shouldNotCreateClub_ClubNameIsTooShort() throws Exception {
-        ClubEntity clubEntity = new ClubEntity();
+        Club clubEntity = new Club();
         clubEntity.setClubName("A");
         clubEntity.setStateAcronym("AC");
         clubEntity.setCreatedOn(LocalDate.of(2023, 1, 1));
@@ -87,7 +87,7 @@ public class ClubControllerTest {
 
     @Test
     public void shouldNotCreateClub_StateAcronymIsInvalid() throws Exception {
-        ClubEntity clubEntity = new ClubEntity();
+        Club clubEntity = new Club();
         clubEntity.setClubName("Coritiba");
         clubEntity.setStateAcronym("AJ");
         clubEntity.setCreatedOn(LocalDate.of(2023, 1, 1));
@@ -105,7 +105,7 @@ public class ClubControllerTest {
     @Test
     @Transactional
     public void shouldNotCreateClub_DataIntegrityViolation() throws Exception {
-        ClubEntity clubEntity = new ClubEntity();
+        Club clubEntity = new Club();
         clubEntity.setClubName("Coritiba");
         clubEntity.setStateAcronym("MT");
         clubEntity.setCreatedOn(LocalDate.of(2023, 1, 1));
@@ -128,7 +128,7 @@ public class ClubControllerTest {
 
     @Test
     public void shoulNotCreateClub_DateIsInTheFuture() throws Exception {
-        ClubEntity clubEntity = new ClubEntity();
+        Club clubEntity = new Club();
         clubEntity.setClubName("Coritiba");
         clubEntity.setStateAcronym("AC");
         clubEntity.setCreatedOn(LocalDate.of(2027, 1, 1));
@@ -148,7 +148,7 @@ public class ClubControllerTest {
     public void shouldUpdateClub_AllValidData() throws Exception {
         Long clubId = 8L;
 
-        ClubEntity updatedClubEntity = new ClubEntity();
+        Club updatedClubEntity = new Club();
         updatedClubEntity.setClubName("Palmeiras");
         updatedClubEntity.setStateAcronym("SP");
         updatedClubEntity.setCreatedOn(LocalDate.of(1990, 1, 1));
@@ -169,7 +169,7 @@ public class ClubControllerTest {
     @Test
     public void shouldNotUpdateClub_InvalidId() throws Exception {
         Long clubId = 100L;
-        ClubEntity updatedClubEntity = new ClubEntity();
+        Club updatedClubEntity = new Club();
         updatedClubEntity.setClubName("Palmeiras");
         updatedClubEntity.setStateAcronym("SP");
         updatedClubEntity.setCreatedOn(LocalDate.of(2024, 1, 1));
@@ -186,7 +186,7 @@ public class ClubControllerTest {
     @Test
     public void shouldNotUpdateClub_ClubNameIsInvalid() throws Exception {
         Long clubId = 80L;
-        ClubEntity updatedClubEntity = new ClubEntity();
+        Club updatedClubEntity = new Club();
         updatedClubEntity.setClubName("P");
         updatedClubEntity.setStateAcronym("SP");
         updatedClubEntity.setCreatedOn(LocalDate.of(2024, 1, 1));
@@ -271,8 +271,8 @@ public class ClubControllerTest {
                 .andReturn();
         assertThat(mvcResult.getResponse().getStatus()).isEqualTo(200);
 
-        GoalSummary goalSummary =
-                new ObjectMapper().readValue(mvcResult.getResponse().getContentAsString(), GoalSummary.class);
+        GoalSummaryDTO goalSummary =
+                new ObjectMapper().readValue(mvcResult.getResponse().getContentAsString(), GoalSummaryDTO.class);
         assertThat(goalSummary.getTotalOfPositiveGoals()).isEqualTo(2);
         assertThat(goalSummary.getTotalOfNegativeGoals()).isEqualTo(0);
         assertThat(goalSummary.getTotalOfVictories()).isEqualTo(2);

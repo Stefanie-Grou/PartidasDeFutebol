@@ -1,7 +1,7 @@
 package com.example.partidasdefutebol.tests.club;
 
-import com.example.partidasdefutebol.entities.GoalSummary;
-import com.example.partidasdefutebol.entities.ClubEntity;
+import com.example.partidasdefutebol.dto.GoalSummaryDTO;
+import com.example.partidasdefutebol.entities.Club;
 import com.example.partidasdefutebol.exceptions.CustomException;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
@@ -24,13 +24,13 @@ public class ClubServiceTest {
     @Test
     @Transactional
     public void shouldCreateClubEntitySucessfully() {
-        ClubEntity clubEntity = new ClubEntity();
-        clubEntity.setClubName("Coritiba");
+        Club clubEntity = new Club();
+        clubEntity.setName("Coritiba");
         clubEntity.setStateAcronym("PR");
         clubEntity.setCreatedOn(LocalDate.of(1990, 1, 1));
         clubEntity.setIsActive(true);
 
-        assertThat(clubEntity.getClubName()).isEqualTo("Coritiba");
+        assertThat(clubEntity.getName()).isEqualTo("Coritiba");
         assertThat(clubEntity.getStateAcronym()).isEqualTo("PR");
         assertThat(clubEntity.getCreatedOn()).isEqualTo(LocalDate.of(1990, 1, 1));
         assertThat(clubEntity.getIsActive()).isTrue();
@@ -50,14 +50,14 @@ public class ClubServiceTest {
     @Transactional
     public void shoulUpdateClubSucessfully_ValidInformation() {
         Long clubToUpdateId = 4L;
-        ClubEntity clubToBeUpdatedEntity = new ClubEntity();
-        clubToBeUpdatedEntity.setClubName("Coritiba");
+        Club clubToBeUpdatedEntity = new Club();
+        clubToBeUpdatedEntity.setName("Coritiba");
         clubToBeUpdatedEntity.setStateAcronym("PR");
         clubToBeUpdatedEntity.setCreatedOn(LocalDate.of(1990, 1, 1));
         clubToBeUpdatedEntity.setIsActive(true);
         clubService.updateClub(clubToUpdateId, clubToBeUpdatedEntity);
 
-        assertThat(clubToBeUpdatedEntity.getClubName()).isEqualTo("Coritiba");
+        assertThat(clubToBeUpdatedEntity.getName()).isEqualTo("Coritiba");
         assertThat(clubToBeUpdatedEntity.getStateAcronym()).isEqualTo("PR");
         assertThat(clubToBeUpdatedEntity.getCreatedOn()).isEqualTo(LocalDate.of(1990, 1, 1));
         assertThat(clubToBeUpdatedEntity.getIsActive()).isTrue();
@@ -66,8 +66,8 @@ public class ClubServiceTest {
     @Test
     @Transactional
     public void shouldDeleteClubSucessfully() {
-        ClubEntity clubEntity = new ClubEntity();
-        clubEntity.setClubName("Vitória");
+        Club clubEntity = new Club();
+        clubEntity.setName("Vitória");
         clubEntity.setStateAcronym("PR");
         clubEntity.setCreatedOn(LocalDate.of(1990, 1, 1));
         clubEntity.setIsActive(true);
@@ -82,11 +82,11 @@ public class ClubServiceTest {
     @Test
     public void shouldFindAndReturnClubEntity_ValidId() {
         Long clubId = 4L;
-        ClubEntity clubEntity = clubService.findClubById(clubId);
+        Club clubEntity = clubService.findClubById(clubId);
         assertThat(clubEntity.getId()).isEqualTo(clubId);
         assertThat(clubEntity).isNotNull();
         assertThat(clubEntity.getIsActive()).isFalse();
-        assertThat(clubEntity.getClubName()).isEqualTo("Ypiranga-RS");
+        assertThat(clubEntity.getName()).isEqualTo("Ypiranga-RS");
         assertThat(clubEntity.getStateAcronym()).isEqualTo("RS");
         assertThat(clubEntity.getCreatedOn()).isEqualTo(LocalDate.of(1910, 9, 18));
     }
@@ -104,19 +104,19 @@ public class ClubServiceTest {
     @Test
     public void shouldThrowException_InactiveClubEntityOnDB() {
         Long clubId = 10L;
-        ClubEntity clubEntity = clubService.findClubById(clubId);
+        Club clubEntity = clubService.findClubById(clubId);
         CustomException exception = assertThrows(CustomException.class, () -> {
             clubService.isClubInactive(clubEntity);
         });
         assertThat(exception.getStatusCode()).isEqualTo(409);
-        String expectedExceptionMessage = "O clube " + clubEntity.getClubName() + " está inativo";
+        String expectedExceptionMessage = "O clube " + clubEntity.getName() + " está inativo";
         assertThat(exception.getMessage()).isEqualTo(expectedExceptionMessage);
     }
 
     @Test
     public void throwsException_ClubCreationIsPastMatchDate() {
         Long clubId = 3L;
-        String clubName = clubService.findClubById(clubId).getClubName();
+        String clubName = clubService.findClubById(clubId).getName();
         LocalDateTime clubCreationDate =
                 clubService.findClubById(clubId).getCreatedOn().minusMonths(1).atStartOfDay();
 
@@ -132,7 +132,7 @@ public class ClubServiceTest {
     @Test
     public void getClubInfomartionSucessfully() {
         Long clubId = 1L;
-        GoalSummary goalSummary = clubService.getClubRetrospective(clubId);
+        GoalSummaryDTO goalSummary = clubService.getClubRetrospective(clubId);
         assertThat(goalSummary).isNotNull();
         assertThat(goalSummary.getTotalOfPositiveGoals()).isEqualTo(2);
         assertThat(goalSummary.getTotalOfNegativeGoals()).isEqualTo(0);

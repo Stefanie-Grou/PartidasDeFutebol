@@ -1,4 +1,4 @@
-INSERT INTO stadium_entity (stadium_name, stadium_state, cep, city, street)
+INSERT INTO stadium (name, state_acronym, cep, city, street)
 VALUES ('Estádio Municipal Jorge Ismael de Biasi', 'SP', '14800-000', 'Matão', 'Rua Dr. José Carlos de Oliveira'),
        ('Estádio Municipal Evandro Almeida', 'BA', '44070-024', 'Feira de Santana',
         'Rua A, s/n - Bairro Campo do Gado'),

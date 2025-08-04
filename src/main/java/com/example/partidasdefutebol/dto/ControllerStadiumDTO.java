@@ -1,4 +1,4 @@
-package com.example.partidasdefutebol.entities;
+package com.example.partidasdefutebol.dto;
 
 import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.NotBlank;
@@ -10,7 +10,7 @@ import lombok.Setter;
 
 @AllArgsConstructor
 @NoArgsConstructor
-public class StadiumFromController {
+public class ControllerStadiumDTO {
     @NotBlank(message = "O nome do estadio é obrigatório")
     @Size(min = 3, max = 255, message = "O nome do estadio deve ser composto por, no mínimo, 3 letras.")
     @Getter

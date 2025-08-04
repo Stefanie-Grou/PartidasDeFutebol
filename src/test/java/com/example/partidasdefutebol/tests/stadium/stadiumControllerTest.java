@@ -1,8 +1,7 @@
 package com.example.partidasdefutebol.tests.stadium;
 
 import com.example.partidasdefutebol.controller.StadiumController;
-import com.example.partidasdefutebol.entities.StadiumEntity;
-import com.example.partidasdefutebol.entities.StadiumFromController;
+import com.example.partidasdefutebol.dto.ControllerStadiumDTO;
 import com.example.partidasdefutebol.repository.StadiumRepository;
 import com.example.partidasdefutebol.service.StadiumService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -19,8 +18,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
-
-import java.time.LocalDateTime;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -51,7 +48,7 @@ public class stadiumControllerTest {
     @Test
     @Transactional
     public void shouldCreateStadiumSucessfully() throws Exception {
-        StadiumFromController stadiumFromController = new StadiumFromController();
+        ControllerStadiumDTO stadiumFromController = new ControllerStadiumDTO();
         stadiumFromController.setStadiumName("Nacional");
         stadiumFromController.setCep("01311000");
 
@@ -72,7 +69,7 @@ public class stadiumControllerTest {
     @Test
     @Transactional
     public void shouldThrowExceptionAndWontCreate_InvalidStadiumStateAcronym() throws Exception {
-        StadiumFromController stadiumFromController = new StadiumFromController();
+        ControllerStadiumDTO stadiumFromController = new ControllerStadiumDTO();
         stadiumFromController.setStadiumName("Nacional");
         stadiumFromController.setCep("00000000");
         MvcResult mvcResult = mockMvc.perform(post("/estadio")
@@ -87,7 +84,7 @@ public class stadiumControllerTest {
     @Transactional
     public void shoulduUpdateStadiumSucessfully() throws Exception {
         Long stadiumId = 2L;
-        StadiumFromController stadiumFromController = new StadiumFromController();
+        ControllerStadiumDTO stadiumFromController = new ControllerStadiumDTO();
         stadiumFromController.setStadiumName("Pacaembu");
         stadiumFromController.setCep("17860000");
         MvcResult mvcResult = mockMvc.perform(put("/estadio/{id}", stadiumId)
@@ -106,7 +103,7 @@ public class stadiumControllerTest {
     @Test
     public void shouldThrowExceptionAndDontUpdate_InvalidStadiumId() throws Exception {
         Long stadiumId = 100L;
-        StadiumFromController stadiumFromController = new StadiumFromController();
+        ControllerStadiumDTO stadiumFromController = new ControllerStadiumDTO();
         stadiumFromController.setStadiumName("Pacaembu");
         stadiumFromController.setCep("21941600");
         MvcResult mvcResult = mockMvc.perform(put("/estadio/{id}", stadiumId)

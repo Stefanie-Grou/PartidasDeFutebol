@@ -1,7 +1,7 @@
 package com.example.partidasdefutebol.tests.stadium;
 
-import com.example.partidasdefutebol.entities.StadiumEntity;
-import com.example.partidasdefutebol.entities.StadiumFromController;
+import com.example.partidasdefutebol.entities.Stadium;
+import com.example.partidasdefutebol.dto.ControllerStadiumDTO;
 import com.example.partidasdefutebol.exceptions.CustomException;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
@@ -26,7 +26,7 @@ public class stadiumServiceTest {
     @Test
     @Transactional
     public void shouldSaveStadiumSucessfully() throws Exception {
-        StadiumEntity stadiumEntity = new StadiumEntity();
+        Stadium stadiumEntity = new Stadium();
         String stadiumName = "Nacional" + LocalDateTime.now().getSecond();
         stadiumEntity.setStadiumName(stadiumName);
         stadiumEntity.setStadiumState("SP");
@@ -40,7 +40,7 @@ public class stadiumServiceTest {
     @Transactional
     public void shouldThrowExceptionAndNotSave_StadiumCepIsNotValid() throws Exception {
         CustomException exception = assertThrows(CustomException.class, () -> {
-            StadiumFromController stadiumFromController = new StadiumFromController();
+            ControllerStadiumDTO stadiumFromController = new ControllerStadiumDTO();
             stadiumFromController.setStadiumName("Nacional");
             stadiumFromController.setCep("00000-000");
             stadiumService.saveStadium(stadiumFromController);
@@ -54,11 +54,11 @@ public class stadiumServiceTest {
     @Transactional
     public void shouldUpdateStadium() throws Exception {
         Long stadiumId = 1L;
-        StadiumFromController stadiumFromController = new StadiumFromController();
+        ControllerStadiumDTO stadiumFromController = new ControllerStadiumDTO();
         stadiumFromController.setStadiumName("Nacional");
         stadiumFromController.setCep("12070012");
 
-        StadiumEntity updatedStadiumEntity = stadiumService.updateStadium(stadiumId, stadiumFromController);
+        Stadium updatedStadiumEntity = stadiumService.updateStadium(stadiumId, stadiumFromController);
 
         assertThat(updatedStadiumEntity.getStadiumName()).isEqualTo("Nacional");
         assertThat(updatedStadiumEntity.getStadiumState()).isEqualTo("SP");
@@ -70,7 +70,7 @@ public class stadiumServiceTest {
     @Test
     public void shouldReturnStadiumEntitySucessfully() throws Exception {
         Long stadiumId = 3L;
-        ResponseEntity<StadiumEntity> stadiumEntity = stadiumService.retrieveStadiumInfo(stadiumId);
+        ResponseEntity<Stadium> stadiumEntity = stadiumService.retrieveStadiumInfo(stadiumId);
         assertThat(stadiumEntity).isNotNull();
         assertThat(stadiumEntity.getBody().getStadiumName()).isEqualTo("Estádio Municipal João Lamego");
         assertThat(stadiumEntity.getBody().getStadiumState()).isEqualTo("PR");

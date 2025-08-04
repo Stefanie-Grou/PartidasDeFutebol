@@ -1,7 +1,7 @@
 package com.example.partidasdefutebol.rabbitMQ;
 
 import com.example.partidasdefutebol.configs.RabbitConfiguration;
-import com.example.partidasdefutebol.entities.QueueMessage;
+import com.example.partidasdefutebol.dto.QueueMessageDTO;
 import com.example.partidasdefutebol.exceptions.CustomException;
 import com.example.partidasdefutebol.service.ClubService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -24,7 +24,7 @@ public class MessageListener {
     @RabbitListener(queues = RabbitConfiguration.QUEUE_NAME)
     public void receiveMessage(String message) throws Exception {
         System.out.println("Received message: " + message);
-        QueueMessage queueMessage = objectMapper.readValue(message, QueueMessage.class);
+        QueueMessageDTO queueMessage = objectMapper.readValue(message, QueueMessageDTO.class);
         try {
             switch (queueMessage.getOperation()) {
                 case "CREATE":

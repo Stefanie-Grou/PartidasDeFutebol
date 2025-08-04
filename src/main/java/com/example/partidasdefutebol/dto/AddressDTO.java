@@ -1,10 +1,10 @@
-package com.example.partidasdefutebol.entities;
+package com.example.partidasdefutebol.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 
-public class AddressEntity {
+public class AddressDTO {
     @Getter
     @Setter
     @JsonProperty("uf")

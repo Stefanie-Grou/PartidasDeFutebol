@@ -1,7 +1,7 @@
-CREATE TABLE match_seq (
+CREATE TABLE matches_seq (
                           id BIGINT NOT NULL AUTO_INCREMENT,
                           next_val BIGINT NOT NULL,
                           PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-INSERT INTO match_seq (next_val) VALUES (1);
+INSERT INTO matches_seq (next_val) VALUES (1);

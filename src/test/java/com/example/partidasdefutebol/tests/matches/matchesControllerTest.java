@@ -1,7 +1,7 @@
 package com.example.partidasdefutebol.tests.matches;
 
 import com.example.partidasdefutebol.controller.MatchController;
-import com.example.partidasdefutebol.entities.MatchEntity;
+import com.example.partidasdefutebol.entities.Matches;
 import com.example.partidasdefutebol.service.MatchService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -74,7 +74,7 @@ public class matchesControllerTest {
     @Test
     @Transactional
     public void shouldCreateMatchSuccessfully() throws Exception {
-        MatchEntity match = new MatchEntity();
+        Matches match = new Matches();
         match.setStadiumId(1L);
         match.setAwayClubId(6L);
         match.setHomeClubId(9L);
@@ -94,7 +94,7 @@ public class matchesControllerTest {
     @Transactional
     public void shouldUpdateMatchSuccessfully() throws Exception {
         Long matchId = 3L;
-        MatchEntity match = new MatchEntity();
+        Matches match = new Matches();
         match.setStadiumId(1L);
         match.setAwayClubId(6L);
         match.setHomeClubId(9L);

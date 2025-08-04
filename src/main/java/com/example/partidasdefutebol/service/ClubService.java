@@ -1,11 +1,12 @@
 package com.example.partidasdefutebol.service;
 
-import com.example.partidasdefutebol.entities.GoalSummary;
-import com.example.partidasdefutebol.entities.SummaryByOpponent;
-import com.example.partidasdefutebol.entities.ClubEntity;
-import com.example.partidasdefutebol.entities.Ranking;
+import com.example.partidasdefutebol.dto.GoalSummaryDTO;
+import com.example.partidasdefutebol.dto.SummaryByOpponentDTO;
+import com.example.partidasdefutebol.entities.Club;
+import com.example.partidasdefutebol.dto.RankingDTO;
 import com.example.partidasdefutebol.exceptions.CustomException;
 import com.example.partidasdefutebol.repository.ClubRepository;
+import org.springframework.amqp.AmqpRejectAndDontRequeueException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -20,50 +21,45 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static com.example.partidasdefutebol.util.isValidBrazilianState.isValidBrazilianState;
-
 @Service
 public class ClubService {
     @Autowired
     private ClubRepository clubRepository;
 
-    public void createClub(ClubEntity clubEntity) {
-        if (!isValidBrazilianState(clubEntity.getStateAcronym())) {
-            throw new CustomException("A sigla do estado é inválida.", 409);
-        }
+    public void createClub(Club clubEntity) {
         clubRepository.save(clubEntity);
     }
 
     public void doesClubExist(Long clubId) throws CustomException {
         if (!clubRepository.existsById(clubId)) {
-            throw new CustomException("Clube " + clubId + " não encontrado na base de dados.", 404);
+            throw new AmqpRejectAndDontRequeueException("Clube " + clubId + " nao encontrado na base de dados.");
         }
     }
 
-    public ClubEntity updateClub(Long id, ClubEntity requestedToUpdateClubEntity) {
+    public void updateClub(Long id, Club requestedToUpdateClubEntity) {
         doesClubExist(id);
         wasClubCreatedAfterGame(id, requestedToUpdateClubEntity);
-        ClubEntity clubEntity = clubRepository.findById(id).get();
-        clubEntity.setClubName(requestedToUpdateClubEntity.getClubName());
+        Club clubEntity = clubRepository.findById(id).get();
+        clubEntity.setName(requestedToUpdateClubEntity.getName());
         clubEntity.setStateAcronym(requestedToUpdateClubEntity.getStateAcronym());
         clubEntity.setCreatedOn(requestedToUpdateClubEntity.getCreatedOn());
         clubEntity.setIsActive(requestedToUpdateClubEntity.getIsActive());
-        return clubRepository.saveAndFlush(clubEntity);
+        clubRepository.saveAndFlush(clubEntity);
     }
 
-    public ClubEntity deleteClub(Long id) {
+    public Club deleteClub(Long id) {
         doesClubExist(id);
-        ClubEntity existingClubEntity = clubRepository.findById(id).get();
+        Club existingClubEntity = clubRepository.findById(id).get();
         existingClubEntity.setIsActive(false);
         return clubRepository.save(existingClubEntity);
     }
 
-    public ClubEntity findClubById(Long id) {
+    public Club findClubById(Long id) {
         doesClubExist(id);
         return clubRepository.findById(id).get();
     }
 
-    public Page<ClubEntity> getClubs(String name, String state, Boolean isActive, int page, int size, String sortField, String sortOrder) {
+    public Page<Club> getClubs(String name, String state, Boolean isActive, int page, int size, String sortField, String sortOrder) {
         Sort sort = Sort.by(sortField);
         if ("desc".equalsIgnoreCase(sortOrder)) {
             sort = sort.descending();
@@ -74,27 +70,27 @@ public class ClubService {
 
     public void wasClubCreatedBeforeGame(Long clubid,
                                          LocalDateTime matchDate) {
-        if (clubRepository.findById(clubid).get().getCreatedOn().isAfter(ChronoLocalDate.from(matchDate))) {
-            throw new CustomException("A data de criação do clube " + clubRepository.findById(clubid).get().getClubName() +
-                    " deve ser anterior ao registro de alguma partida cadastrada.", 409);
+        if (!clubRepository.findById(clubid).get().getCreatedOn().isAfter(ChronoLocalDate.from(matchDate))) {
+            String message = "A data de criação do clube " + clubRepository.findById(clubid).get().getName() +
+                    " deve ser anterior ao registro de alguma partida cadastrada.";
+            throw new AmqpRejectAndDontRequeueException(message);
         }
     }
 
-    public void isClubInactive(ClubEntity clubEntity) throws ResponseStatusException {
+    public void isClubInactive(Club clubEntity) throws ResponseStatusException {
         if (!clubEntity.getIsActive()) {
-            throw new CustomException("O clube " + clubEntity.getClubName() + " está inativo", 409);
+            throw new CustomException("O clube " + clubEntity.getName() + " está inativo", 409);
         }
     }
 
-    public void wasClubCreatedAfterGame(Long clubId, ClubEntity clubEntity) throws CustomException {
-        if (clubRepository.wasClubCreatedAfterGame(
-                clubEntity.getCreatedOn().atStartOfDay(), clubId)) {
+    public void wasClubCreatedAfterGame(Long clubId, Club clubEntity) throws CustomException {
+        if (!clubRepository.wasClubCreatedAfterGame(clubEntity.getCreatedOn().atStartOfDay(), clubId)) {
             String message = "A nova data de criação do clube está posterior ao registro de alguma partida cadastrada.\nClube: {} Nova data de criação: {}\n{}";
             throw new CustomException(message);
         }
     }
 
-    public GoalSummary getClubRetrospective(Long id) throws ResponseStatusException {
+    public GoalSummaryDTO getClubRetrospective(Long id) throws ResponseStatusException {
         doesClubExist(id);
         List matchResultsByClub = clubRepository.findMatchResultsByClubId(id);
         Integer positiveGoals = clubRepository.findTotalPositiveGoalsByClubId(id);
@@ -102,13 +98,13 @@ public class ClubService {
         Integer totalOfVictories = Collections.frequency(matchResultsByClub, "vitória");
         Integer totalOfDraws = Collections.frequency(matchResultsByClub, "empate");
         Integer totalOfDefeats = Collections.frequency(matchResultsByClub, "derrota");
-        return new GoalSummary(positiveGoals, negativeGoals, totalOfVictories, totalOfDraws, totalOfDefeats);
+        return new GoalSummaryDTO(positiveGoals, negativeGoals, totalOfVictories, totalOfDraws, totalOfDefeats);
     }
 
-    public Page<SummaryByOpponent> getClubRetrospectiveByOpponent(Long id) throws ResponseStatusException {
+    public Page<SummaryByOpponentDTO> getClubRetrospectiveByOpponent(Long id) throws ResponseStatusException {
         doesClubExist(id);
         List<Object[]> matchResultsByClub = clubRepository.findClubRetrospectiveByIdAndOpponent(id);
-        List<SummaryByOpponent> summaryList = new ArrayList<>();
+        List<SummaryByOpponentDTO> summaryList = new ArrayList<>();
         for (Object[] matchResultByClub : matchResultsByClub) {
             String opponent = matchResultByClub[0].toString();
             Integer totalOfMatches = Integer.parseInt(matchResultByClub[1].toString());
@@ -117,14 +113,14 @@ public class ClubService {
             Integer totalOfMatchesLost = Integer.parseInt(matchResultByClub[4].toString());
             Integer scoredGoals = Integer.parseInt(matchResultByClub[5].toString());
             Integer concededGoals = Integer.parseInt(matchResultByClub[6].toString());
-            SummaryByOpponent summaryByOpponent = new SummaryByOpponent(opponent, totalOfMatches,
+            SummaryByOpponentDTO summaryByOpponent = new SummaryByOpponentDTO(opponent, totalOfMatches,
                     totalOfMatchesWon, totalOfMatchesDrawn, totalOfMatchesLost, scoredGoals, concededGoals);
             summaryList.add(summaryByOpponent);
         }
         return new PageImpl<>(summaryList);
     }
 
-    public List<Ranking> getClubRankingDispatcher(String rankingFactorFromController) {
+    public List<RankingDTO> callClubRankingDispatcher(String rankingFactorFromController) {
         List<Object[]> returnedRankingFromDatabase;
         switch (rankingFactorFromController) {
             case "partidas":
@@ -161,10 +157,10 @@ public class ClubService {
         return clubRepository.getRankingByTotalPoints();
     }
 
-    public List<Ranking> setReturnedRankingInfoIntoEntity(List<Object[]> returnedRankingFromDatabase) {
-        List<Ranking> rankingList = new ArrayList<>();
+    public List<RankingDTO> setReturnedRankingInfoIntoEntity(List<Object[]> returnedRankingFromDatabase) {
+        List<RankingDTO> rankingList = new ArrayList<>();
         for (Object[] objects : returnedRankingFromDatabase) {
-            Ranking ranking = new Ranking(objects[0].toString(),
+            RankingDTO ranking = new RankingDTO(objects[0].toString(),
                     Integer.parseInt(objects[1].toString()));
             rankingList.add(ranking);
         }

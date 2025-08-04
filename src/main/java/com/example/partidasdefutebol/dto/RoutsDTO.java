@@ -1,4 +1,4 @@
-package com.example.partidasdefutebol.entities;
+package com.example.partidasdefutebol.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
@@ -6,7 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 @AllArgsConstructor
-public class Routs {
+public class RoutsDTO {
     @Getter
     @Setter
     @JsonProperty("partida")

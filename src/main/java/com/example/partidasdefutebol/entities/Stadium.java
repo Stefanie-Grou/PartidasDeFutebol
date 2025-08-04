@@ -10,22 +10,22 @@ import lombok.Setter;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
-public class StadiumEntity {
+public class Stadium {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Getter
     @Setter
-    private Long stadiumId;
+    private Long id;
 
     @NotBlank
     @Getter
     @Setter
-    private String stadiumName;
+    private String name;
 
     @NotBlank
     @Getter
     @Setter
-    private String stadiumState;
+    private String stateAcronym;
 
     @NotBlank
     @Getter
