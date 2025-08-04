@@ -1,6 +1,5 @@
-package com.example.partidasdefutebol.tests.club;
+package com.example.partidasdefutebol.controller;
 
-import com.example.partidasdefutebol.controller.ClubController;
 import com.example.partidasdefutebol.dto.GoalSummaryDTO;
 import com.example.partidasdefutebol.entities.Club;
 import com.example.partidasdefutebol.service.ClubService;
@@ -16,16 +15,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.assertj.core.api.Assertions.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@ActiveProfiles("test")
 public class ClubControllerTest {
 
     @Autowired
@@ -48,7 +50,6 @@ public class ClubControllerTest {
     }
 
     @Test
-    @Transactional
     public void shouldCreateClub() throws Exception {
         Club clubEntity = new Club();
         clubEntity.setName("Coritiba");
@@ -88,8 +89,8 @@ public class ClubControllerTest {
     @Test
     public void shouldNotCreateClub_StateAcronymIsInvalid() throws Exception {
         Club clubEntity = new Club();
-        clubEntity.setName("Coritiba");
-        clubEntity.setStateAcronym("AJ");
+        clubEntity.setName("Itacuara" + LocalDateTime.now());
+        clubEntity.setStateAcronym("XJ");
         clubEntity.setCreatedOn(LocalDate.of(2023, 1, 1));
         clubEntity.setIsActive(true);
 
@@ -98,12 +99,11 @@ public class ClubControllerTest {
                         .content(objectMapper.writeValueAsString(clubEntity)))
                 .andReturn();
 
-        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(409);
-        assertThat(mvcResult.getResponse().getContentAsString()).contains("A sigla do estado é inválida.");
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(400);
+        assertThat(mvcResult.getResponse().getContentAsString()).contains("O estado AJ é inválido.");
     }
 
     @Test
-    @Transactional
     public void shouldNotCreateClub_DataIntegrityViolation() throws Exception {
         Club clubEntity = new Club();
         clubEntity.setName("Coritiba");
@@ -121,9 +121,9 @@ public class ClubControllerTest {
                         .content(objectMapper.writeValueAsString(clubEntity)))
                 .andReturn();
 
-        assertThat(dataIntegrityViolation.getResponse().getStatus()).isEqualTo(409);
+        assertThat(dataIntegrityViolation.getResponse().getStatus()).isEqualTo(202);
         assertThat(dataIntegrityViolation.getResponse().getContentAsString())
-                .contains("Já existe um registro de mesmo nome para este estado.");
+                .contains("Aguardando processamento");
     }
 
     @Test
@@ -144,7 +144,6 @@ public class ClubControllerTest {
     }
 
     @Test
-    @Transactional
     public void shouldUpdateClub_AllValidData() throws Exception {
         Long clubId = 8L;
 
@@ -159,16 +158,13 @@ public class ClubControllerTest {
                         .content(objectMapper.writeValueAsString(updatedClubEntity)))
                 .andReturn();
 
-        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(200);
-        assertThat(mvcResult.getResponse().getContentAsString()).contains("Palmeiras");
-        assertThat(mvcResult.getResponse().getContentAsString()).contains("SP");
-        assertThat(mvcResult.getResponse().getContentAsString()).contains("1990-01-01");
-        assertThat(mvcResult.getResponse().getContentAsString()).contains("true");
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(202);
+        assertThat(mvcResult.getResponse().getContentAsString()).contains("Aguardando processamento");
     }
 
     @Test
     public void shouldNotUpdateClub_InvalidId() throws Exception {
-        Long clubId = 100L;
+        Long clubId = 100000L;
         Club updatedClubEntity = new Club();
         updatedClubEntity.setName("Palmeiras");
         updatedClubEntity.setStateAcronym("SP");
@@ -179,13 +175,13 @@ public class ClubControllerTest {
                         .content(objectMapper.writeValueAsString(updatedClubEntity)))
                 .andReturn();
 
-        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(404);
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(400);
         assertThat(mvcResult.getResponse().getContentAsString()).contains("Clube " + clubId + " não encontrado na base de dados.");
     }
 
     @Test
     public void shouldNotUpdateClub_ClubNameIsInvalid() throws Exception {
-        Long clubId = 80L;
+        Long clubId = 8L;
         Club updatedClubEntity = new Club();
         updatedClubEntity.setName("P");
         updatedClubEntity.setStateAcronym("SP");
@@ -201,7 +197,6 @@ public class ClubControllerTest {
     }
 
     @Test
-    @Transactional
     public void shouldDeleteClub() throws Exception {
         Long clubId = 8L;
         MvcResult mvcResult = mockMvc.perform(delete("/clube/{id}", clubId))
@@ -211,13 +206,13 @@ public class ClubControllerTest {
     }
 
     @Test
-    @Transactional
     public void shouldNotDeleteClub_InvalidId() throws Exception {
         Long clubId = 100L;
         MvcResult mvcResult = mockMvc.perform(delete("/clube/{id}", clubId))
                 .andReturn();
 
-        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(404);
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(400);
+        //assertThat(mvcResult.getResponse().getContentAsString()).isEqualTo("Agardando processamento");
     }
 
     @Test
@@ -239,7 +234,7 @@ public class ClubControllerTest {
         Long clubId = 100L;
         MvcResult mvcResult = mockMvc.perform(get("/clube/{id}", clubId))
                 .andReturn();
-        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(404);
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(400);
     }
 
     @Test

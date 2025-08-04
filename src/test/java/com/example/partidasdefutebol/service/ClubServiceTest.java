@@ -1,4 +1,4 @@
-package com.example.partidasdefutebol.tests.club;
+package com.example.partidasdefutebol.service;
 
 import com.example.partidasdefutebol.dto.GoalSummaryDTO;
 import com.example.partidasdefutebol.entities.Club;
@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -17,18 +18,20 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @AutoConfigureMockMvc
 @SpringBootTest
+@ActiveProfiles("test")
 public class ClubServiceTest {
     @Autowired
     private com.example.partidasdefutebol.service.ClubService clubService;
 
+    //TODO: how to access the console database?
     @Test
-    @Transactional
     public void shouldCreateClubEntitySucessfully() {
         Club clubEntity = new Club();
         clubEntity.setName("Coritiba");
         clubEntity.setStateAcronym("PR");
         clubEntity.setCreatedOn(LocalDate.of(1990, 1, 1));
         clubEntity.setIsActive(true);
+        clubService.createClub(clubEntity);
 
         assertThat(clubEntity.getName()).isEqualTo("Coritiba");
         assertThat(clubEntity.getStateAcronym()).isEqualTo("PR");
@@ -47,7 +50,6 @@ public class ClubServiceTest {
     }
 
     @Test
-    @Transactional
     public void shoulUpdateClubSucessfully_ValidInformation() {
         Long clubToUpdateId = 4L;
         Club clubToBeUpdatedEntity = new Club();
@@ -64,7 +66,6 @@ public class ClubServiceTest {
     }
 
     @Test
-    @Transactional
     public void shouldDeleteClubSucessfully() {
         Club clubEntity = new Club();
         clubEntity.setName("Vitória");

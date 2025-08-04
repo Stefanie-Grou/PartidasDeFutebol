@@ -1,4 +1,4 @@
-package com.example.partidasdefutebol.tests.stadium;
+package com.example.partidasdefutebol.service;
 
 import com.example.partidasdefutebol.entities.Stadium;
 import com.example.partidasdefutebol.dto.ControllerStadiumDTO;
@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -18,26 +19,24 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@ActiveProfiles("test")
 public class stadiumServiceTest {
 
     @Autowired
     private com.example.partidasdefutebol.service.StadiumService stadiumService;
 
     @Test
-    @Transactional
     public void shouldSaveStadiumSucessfully() throws Exception {
-        Stadium stadiumEntity = new Stadium();
-        String stadiumName = "Nacional" + LocalDateTime.now().getSecond();
-        stadiumEntity.setName(stadiumName);
-        stadiumEntity.setStateAcronym("SP");
-        //stadiumService.saveStadium(stadiumEntity);
+        ControllerStadiumDTO stadiumEntity = new ControllerStadiumDTO();
+        stadiumEntity.setStadiumName("Nacional");
+        stadiumEntity.setCep("12070012");
+        stadiumService.saveStadium(stadiumEntity);
 
-        assertThat(stadiumEntity.getName()).isEqualTo(stadiumName);
-        assertThat(stadiumEntity.getStateAcronym()).isEqualTo("SP");
+        assertThat(stadiumEntity.getStadiumName()).isEqualTo("Nacional");
+        assertThat(stadiumEntity.getStadiumName()).isEqualTo("SP");
     }
 
     @Test
-    @Transactional
     public void shouldThrowExceptionAndNotSave_StadiumCepIsNotValid() throws Exception {
         CustomException exception = assertThrows(CustomException.class, () -> {
             ControllerStadiumDTO stadiumFromController = new ControllerStadiumDTO();
@@ -51,7 +50,6 @@ public class stadiumServiceTest {
     }
 
     @Test
-    @Transactional
     public void shouldUpdateStadium() throws Exception {
         Long stadiumId = 1L;
         ControllerStadiumDTO stadiumFromController = new ControllerStadiumDTO();

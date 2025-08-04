@@ -1,6 +1,5 @@
-package com.example.partidasdefutebol.tests.matches;
+package com.example.partidasdefutebol.controller;
 
-import com.example.partidasdefutebol.controller.MatchController;
 import com.example.partidasdefutebol.entities.Matches;
 import com.example.partidasdefutebol.service.MatchService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -15,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
@@ -25,6 +25,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@ActiveProfiles("test")
 public class matchesControllerTest {
 
     @Autowired
@@ -63,7 +64,6 @@ public class matchesControllerTest {
     }
 
     @Test
-    @Transactional
     public void souldDeleteMatchSuccessfully() throws Exception {
         Long matchId = 6L;
         MvcResult mvcResult = mockMvc.perform(delete("/partida/{id}", matchId))
@@ -72,7 +72,6 @@ public class matchesControllerTest {
     }
 
     @Test
-    @Transactional
     public void shouldCreateMatchSuccessfully() throws Exception {
         Matches match = new Matches();
         match.setStadiumId(1L);
@@ -91,7 +90,6 @@ public class matchesControllerTest {
     }
 
     @Test
-    @Transactional
     public void shouldUpdateMatchSuccessfully() throws Exception {
         Long matchId = 3L;
         Matches match = new Matches();

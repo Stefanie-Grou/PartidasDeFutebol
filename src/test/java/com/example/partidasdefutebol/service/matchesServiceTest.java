@@ -1,15 +1,14 @@
-package com.example.partidasdefutebol.tests.matches;
+package com.example.partidasdefutebol.service;
 
 import com.example.partidasdefutebol.entities.Matches;
 import com.example.partidasdefutebol.exceptions.CustomException;
-import com.example.partidasdefutebol.service.ClubService;
-import com.example.partidasdefutebol.service.StadiumService;
 import jakarta.transaction.Transactional;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDateTime;
 
@@ -18,6 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @AutoConfigureMockMvc
 @SpringBootTest
+@ActiveProfiles("test")
 public class matchesServiceTest {
 
     @Autowired
@@ -66,7 +66,6 @@ public class matchesServiceTest {
     }
 
     @Test
-    @Transactional
     public void throwsException_InvalidMatchIdToDelete() {
         CustomException exception = assertThrows(CustomException.class, () -> {
             matchService.deleteMatch(100L);
@@ -100,7 +99,6 @@ public class matchesServiceTest {
     }
 
     @Test
-    @Transactional
     public void shouldDeleteMatchSuccessfullyAndThrowException() {
         Long matchId = 6L;
         Matches matchBefore = matchService.getMatchById(matchId);
@@ -115,7 +113,6 @@ public class matchesServiceTest {
     }
 
     @Test
-    @Transactional
     public void throwsException_InvalidMatchIdToUpdate() {
         Long matchId = 100L;
         Matches matchRequestedToUpdate = new Matches();

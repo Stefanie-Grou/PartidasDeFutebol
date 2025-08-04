@@ -1,6 +1,5 @@
-package com.example.partidasdefutebol.tests.stadium;
+package com.example.partidasdefutebol.controller;
 
-import com.example.partidasdefutebol.controller.StadiumController;
 import com.example.partidasdefutebol.dto.ControllerStadiumDTO;
 import com.example.partidasdefutebol.repository.StadiumRepository;
 import com.example.partidasdefutebol.service.StadiumService;
@@ -16,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
@@ -24,6 +24,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@ActiveProfiles("test")
 public class stadiumControllerTest {
 
     @Autowired
@@ -46,7 +47,6 @@ public class stadiumControllerTest {
     }
 
     @Test
-    @Transactional
     public void shouldCreateStadiumSucessfully() throws Exception {
         ControllerStadiumDTO stadiumFromController = new ControllerStadiumDTO();
         stadiumFromController.setStadiumName("Nacional");
@@ -67,7 +67,6 @@ public class stadiumControllerTest {
     }
 
     @Test
-    @Transactional
     public void shouldThrowExceptionAndWontCreate_InvalidStadiumStateAcronym() throws Exception {
         ControllerStadiumDTO stadiumFromController = new ControllerStadiumDTO();
         stadiumFromController.setStadiumName("Nacional");
@@ -81,7 +80,6 @@ public class stadiumControllerTest {
     }
 
     @Test
-    @Transactional
     public void shoulduUpdateStadiumSucessfully() throws Exception {
         Long stadiumId = 2L;
         ControllerStadiumDTO stadiumFromController = new ControllerStadiumDTO();
