@@ -51,7 +51,7 @@ public class ClubControllerTest {
     @Transactional
     public void shouldCreateClub() throws Exception {
         Club clubEntity = new Club();
-        clubEntity.setClubName("Coritiba");
+        clubEntity.setName("Coritiba");
         clubEntity.setStateAcronym("AC");
         clubEntity.setCreatedOn(LocalDate.of(2023, 1, 1));
         clubEntity.setIsActive(true);
@@ -71,7 +71,7 @@ public class ClubControllerTest {
     @Test
     public void shouldNotCreateClub_ClubNameIsTooShort() throws Exception {
         Club clubEntity = new Club();
-        clubEntity.setClubName("A");
+        clubEntity.setName("A");
         clubEntity.setStateAcronym("AC");
         clubEntity.setCreatedOn(LocalDate.of(2023, 1, 1));
         clubEntity.setIsActive(true);
@@ -88,7 +88,7 @@ public class ClubControllerTest {
     @Test
     public void shouldNotCreateClub_StateAcronymIsInvalid() throws Exception {
         Club clubEntity = new Club();
-        clubEntity.setClubName("Coritiba");
+        clubEntity.setName("Coritiba");
         clubEntity.setStateAcronym("AJ");
         clubEntity.setCreatedOn(LocalDate.of(2023, 1, 1));
         clubEntity.setIsActive(true);
@@ -106,7 +106,7 @@ public class ClubControllerTest {
     @Transactional
     public void shouldNotCreateClub_DataIntegrityViolation() throws Exception {
         Club clubEntity = new Club();
-        clubEntity.setClubName("Coritiba");
+        clubEntity.setName("Coritiba");
         clubEntity.setStateAcronym("MT");
         clubEntity.setCreatedOn(LocalDate.of(2023, 1, 1));
         clubEntity.setIsActive(true);
@@ -129,7 +129,7 @@ public class ClubControllerTest {
     @Test
     public void shoulNotCreateClub_DateIsInTheFuture() throws Exception {
         Club clubEntity = new Club();
-        clubEntity.setClubName("Coritiba");
+        clubEntity.setName("Coritiba");
         clubEntity.setStateAcronym("AC");
         clubEntity.setCreatedOn(LocalDate.of(2027, 1, 1));
         clubEntity.setIsActive(true);
@@ -149,7 +149,7 @@ public class ClubControllerTest {
         Long clubId = 8L;
 
         Club updatedClubEntity = new Club();
-        updatedClubEntity.setClubName("Palmeiras");
+        updatedClubEntity.setName("Palmeiras");
         updatedClubEntity.setStateAcronym("SP");
         updatedClubEntity.setCreatedOn(LocalDate.of(1990, 1, 1));
         updatedClubEntity.setIsActive(true);
@@ -170,7 +170,7 @@ public class ClubControllerTest {
     public void shouldNotUpdateClub_InvalidId() throws Exception {
         Long clubId = 100L;
         Club updatedClubEntity = new Club();
-        updatedClubEntity.setClubName("Palmeiras");
+        updatedClubEntity.setName("Palmeiras");
         updatedClubEntity.setStateAcronym("SP");
         updatedClubEntity.setCreatedOn(LocalDate.of(2024, 1, 1));
         updatedClubEntity.setIsActive(true);
@@ -187,7 +187,7 @@ public class ClubControllerTest {
     public void shouldNotUpdateClub_ClubNameIsInvalid() throws Exception {
         Long clubId = 80L;
         Club updatedClubEntity = new Club();
-        updatedClubEntity.setClubName("P");
+        updatedClubEntity.setName("P");
         updatedClubEntity.setStateAcronym("SP");
         updatedClubEntity.setCreatedOn(LocalDate.of(2024, 1, 1));
         updatedClubEntity.setIsActive(true);

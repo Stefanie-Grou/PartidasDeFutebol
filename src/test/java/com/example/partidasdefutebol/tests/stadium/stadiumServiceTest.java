@@ -28,12 +28,12 @@ public class stadiumServiceTest {
     public void shouldSaveStadiumSucessfully() throws Exception {
         Stadium stadiumEntity = new Stadium();
         String stadiumName = "Nacional" + LocalDateTime.now().getSecond();
-        stadiumEntity.setStadiumName(stadiumName);
-        stadiumEntity.setStadiumState("SP");
+        stadiumEntity.setName(stadiumName);
+        stadiumEntity.setStateAcronym("SP");
         //stadiumService.saveStadium(stadiumEntity);
 
-        assertThat(stadiumEntity.getStadiumName()).isEqualTo(stadiumName);
-        assertThat(stadiumEntity.getStadiumState()).isEqualTo("SP");
+        assertThat(stadiumEntity.getName()).isEqualTo(stadiumName);
+        assertThat(stadiumEntity.getStateAcronym()).isEqualTo("SP");
     }
 
     @Test
@@ -60,8 +60,8 @@ public class stadiumServiceTest {
 
         Stadium updatedStadiumEntity = stadiumService.updateStadium(stadiumId, stadiumFromController);
 
-        assertThat(updatedStadiumEntity.getStadiumName()).isEqualTo("Nacional");
-        assertThat(updatedStadiumEntity.getStadiumState()).isEqualTo("SP");
+        assertThat(updatedStadiumEntity.getName()).isEqualTo("Nacional");
+        assertThat(updatedStadiumEntity.getStateAcronym()).isEqualTo("SP");
         assertThat(updatedStadiumEntity.getCep()).isEqualTo("12070-012");
         assertThat(updatedStadiumEntity.getStreet()).isEqualTo("Rua Luciano Alves Pereira");
         assertThat(updatedStadiumEntity.getCity()).isEqualTo("Taubaté");
@@ -72,8 +72,8 @@ public class stadiumServiceTest {
         Long stadiumId = 3L;
         ResponseEntity<Stadium> stadiumEntity = stadiumService.retrieveStadiumInfo(stadiumId);
         assertThat(stadiumEntity).isNotNull();
-        assertThat(stadiumEntity.getBody().getStadiumName()).isEqualTo("Estádio Municipal João Lamego");
-        assertThat(stadiumEntity.getBody().getStadiumState()).isEqualTo("PR");
+        assertThat(stadiumEntity.getBody().getName()).isEqualTo("Estádio Municipal João Lamego");
+        assertThat(stadiumEntity.getBody().getStateAcronym()).isEqualTo("PR");
     }
 
     @Test
