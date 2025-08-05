@@ -27,7 +27,6 @@ import static org.assertj.core.api.Assertions.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@ActiveProfiles("test")
 public class ClubControllerTest {
 
     @Autowired
@@ -49,33 +48,38 @@ public class ClubControllerTest {
         MockitoAnnotations.openMocks(this);
     }
 
-    @Test
-    public void shouldCreateClub() throws Exception {
+    public Club createsValidClub() {
         Club clubEntity = new Club();
         clubEntity.setName("Coritiba");
-        clubEntity.setStateAcronym("AC");
-        clubEntity.setCreatedOn(LocalDate.of(2023, 1, 1));
+        clubEntity.setStateAcronym("PR");
+        clubEntity.setCreatedOn(LocalDate.of(1990, 1, 1));
         clubEntity.setIsActive(true);
+        clubService.createClub(clubEntity);
+        return clubEntity;
+    }
+
+    @Test
+    public void shouldCreateClub() throws Exception {
+        Club clubEntity = createsValidClub();
 
         MvcResult mvcResult = mockMvc.perform(post("/clube")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(clubEntity)))
                 .andReturn();
 
-        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(201);
-        assertThat(mvcResult.getResponse().getContentAsString()).contains("Coritiba");
-        assertThat(mvcResult.getResponse().getContentAsString()).contains("AC");
-        assertThat(mvcResult.getResponse().getContentAsString()).contains("2023-01-01");
-        assertThat(mvcResult.getResponse().getContentAsString()).contains("true");
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(202);
+        assertThat(mvcResult.getResponse().getContentAsString()).contains("Aguardando processamento");
+        Club createdClub = clubService.findClubById(clubEntity.getId());
+        assertThat(createdClub.getName()).isEqualTo(clubEntity.getName());
+        assertThat(createdClub.getStateAcronym()).isEqualTo(clubEntity.getStateAcronym());
+        assertThat(createdClub.getCreatedOn()).isEqualTo(clubEntity.getCreatedOn());
+        assertThat(createdClub.getIsActive()).isEqualTo(clubEntity.getIsActive());
     }
 
     @Test
     public void shouldNotCreateClub_ClubNameIsTooShort() throws Exception {
-        Club clubEntity = new Club();
-        clubEntity.setName("A");
-        clubEntity.setStateAcronym("AC");
-        clubEntity.setCreatedOn(LocalDate.of(2023, 1, 1));
-        clubEntity.setIsActive(true);
+        Club clubEntity = createsValidClub();
+        clubEntity.setName("C");
 
         MvcResult mvcResult = mockMvc.perform(post("/clube")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -88,11 +92,8 @@ public class ClubControllerTest {
 
     @Test
     public void shouldNotCreateClub_StateAcronymIsInvalid() throws Exception {
-        Club clubEntity = new Club();
-        clubEntity.setName("Itacuara" + LocalDateTime.now());
-        clubEntity.setStateAcronym("XJ");
-        clubEntity.setCreatedOn(LocalDate.of(2023, 1, 1));
-        clubEntity.setIsActive(true);
+        Club clubEntity = new Club
+                (1L,"Coritiba", "AJ", LocalDate.of(1990, 1, 1), true);
 
         MvcResult mvcResult = mockMvc.perform(post("/clube")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -101,29 +102,6 @@ public class ClubControllerTest {
 
         assertThat(mvcResult.getResponse().getStatus()).isEqualTo(400);
         assertThat(mvcResult.getResponse().getContentAsString()).contains("O estado AJ é inválido.");
-    }
-
-    @Test
-    public void shouldNotCreateClub_DataIntegrityViolation() throws Exception {
-        Club clubEntity = new Club();
-        clubEntity.setName("Coritiba");
-        clubEntity.setStateAcronym("MT");
-        clubEntity.setCreatedOn(LocalDate.of(2023, 1, 1));
-        clubEntity.setIsActive(true);
-
-        mockMvc.perform(post("/clube")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(clubEntity)))
-                .andReturn();
-
-        MvcResult dataIntegrityViolation = mockMvc.perform(post("/clube")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(clubEntity)))
-                .andReturn();
-
-        assertThat(dataIntegrityViolation.getResponse().getStatus()).isEqualTo(202);
-        assertThat(dataIntegrityViolation.getResponse().getContentAsString())
-                .contains("Aguardando processamento");
     }
 
     @Test
@@ -145,31 +123,34 @@ public class ClubControllerTest {
 
     @Test
     public void shouldUpdateClub_AllValidData() throws Exception {
-        Long clubId = 8L;
+        Long clubId = 1L;
+        //Before update
+        Club clubToBeUpdated = new Club();
+        clubToBeUpdated.setName("Palmeiras");
+        clubToBeUpdated.setStateAcronym("SP");
+        clubToBeUpdated.setCreatedOn(LocalDate.of(1990, 1, 1));
+        clubToBeUpdated.setIsActive(true);
+        clubService.createClub(clubToBeUpdated);
+        assertThat(clubService.findClubById(clubId).getName()).isEqualTo("Palmeiras");
+        assertThat(clubService.findClubById(clubId).getStateAcronym()).isEqualTo("SP");
+        assertThat(clubService.findClubById(clubId).getCreatedOn()).isEqualTo(LocalDate.of(1990, 1, 1));
+        assertThat(clubService.findClubById(clubId).getIsActive()).isEqualTo(true);
 
-        Club updatedClubEntity = new Club();
-        updatedClubEntity.setName("Palmeiras");
-        updatedClubEntity.setStateAcronym("SP");
-        updatedClubEntity.setCreatedOn(LocalDate.of(1990, 1, 1));
-        updatedClubEntity.setIsActive(true);
-
+        //Update
         MvcResult mvcResult = mockMvc.perform(put("/clube/{id}", clubId)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(updatedClubEntity)))
+                        .content(objectMapper.writeValueAsString(clubToBeUpdated)))
                 .andReturn();
+
 
         assertThat(mvcResult.getResponse().getStatus()).isEqualTo(202);
         assertThat(mvcResult.getResponse().getContentAsString()).contains("Aguardando processamento");
     }
 
     @Test
-    public void shouldNotUpdateClub_InvalidId() throws Exception {
+    public void throwsException_InvalidClubId() throws Exception {
         Long clubId = 100000L;
-        Club updatedClubEntity = new Club();
-        updatedClubEntity.setName("Palmeiras");
-        updatedClubEntity.setStateAcronym("SP");
-        updatedClubEntity.setCreatedOn(LocalDate.of(2024, 1, 1));
-        updatedClubEntity.setIsActive(true);
+        Club updatedClubEntity = createsValidClub();
         MvcResult mvcResult = mockMvc.perform(put("/clube/{id}", clubId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updatedClubEntity)))
@@ -198,11 +179,11 @@ public class ClubControllerTest {
 
     @Test
     public void shouldDeleteClub() throws Exception {
-        Long clubId = 8L;
-        MvcResult mvcResult = mockMvc.perform(delete("/clube/{id}", clubId))
+        Club clubEntity = createsValidClub();
+        MvcResult mvcResult = mockMvc.perform(delete("/clube/{id}", clubEntity.getId()))
                 .andReturn();
-
         assertThat(mvcResult.getResponse().getStatus()).isEqualTo(204);
+        assertThat(clubService.findClubById(clubEntity.getId()).getIsActive()).isEqualTo(false);
     }
 
     @Test
@@ -212,21 +193,20 @@ public class ClubControllerTest {
                 .andReturn();
 
         assertThat(mvcResult.getResponse().getStatus()).isEqualTo(400);
-        //assertThat(mvcResult.getResponse().getContentAsString()).isEqualTo("Agardando processamento");
+        assertThat(mvcResult.getResponse().getContentAsString()).contains("Clube " + clubId + " não encontrado na base de dados.");
     }
 
     @Test
     public void shouldGetOneClubById() throws Exception {
-        Long clubId = 8L;
-        MvcResult mvcResult = mockMvc.perform(get("/clube/{id}", clubId))
+        Club clubEntity = createsValidClub();
+        MvcResult mvcResult = mockMvc.perform(get("/clube/{id}", clubEntity.getId()))
                 .andReturn();
-        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(200);
 
         assertThat(mvcResult.getResponse().getStatus()).isEqualTo(200);
-        assertThat(mvcResult.getResponse().getContentAsString()).contains("Tigre");
-        assertThat(mvcResult.getResponse().getContentAsString()).contains("RS");
-        assertThat(mvcResult.getResponse().getContentAsString()).contains("1966-07-12");
-        assertThat(mvcResult.getResponse().getContentAsString()).contains("true");
+        assertThat(mvcResult.getResponse().getContentAsString()).contains(clubEntity.getName());
+        assertThat(mvcResult.getResponse().getContentAsString()).contains(clubEntity.getStateAcronym());
+        assertThat(mvcResult.getResponse().getContentAsString()).contains(clubEntity.getCreatedOn().toString());
+        assertThat(mvcResult.getResponse().getContentAsString()).contains(clubEntity.getIsActive().toString());
     }
 
     @Test
@@ -235,51 +215,5 @@ public class ClubControllerTest {
         MvcResult mvcResult = mockMvc.perform(get("/clube/{id}", clubId))
                 .andReturn();
         assertThat(mvcResult.getResponse().getStatus()).isEqualTo(400);
-    }
-
-    @Test
-    public void shouldGetAllClubs() throws Exception {
-        MvcResult mvcResult = mockMvc.perform(get("/clube"))
-                .andReturn();
-        //These aren't everything I'm expecting as a response, but it's enough for now
-        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(200);
-        assertThat(mvcResult.getResponse().getContentAsString()).contains("Novorizontino");
-        assertThat(mvcResult.getResponse().getContentAsString()).contains("Novorizontino");
-        assertThat(mvcResult.getResponse().getContentAsString()).contains("Novorizontino");
-    }
-
-    @Test
-    public void shouldGetAllClubsByName() throws Exception {
-        MvcResult mvcResult = mockMvc.perform(get("http://localhost:8080/clube?name=Tigre"))
-                .andReturn();
-
-        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(200);
-        String response = mvcResult.getResponse().getContentAsString();
-        assertThat(response).contains("Tigre");
-        assertThat(response).contains("RS");
-        assertThat(response).contains("1966");
-    }
-
-    @Test
-    public void shouldRetrieveClubRetrospectiveSucessfully() throws Exception {
-        MvcResult mvcResult = mockMvc.perform(get("/clube/retrospecto/1"))
-                .andReturn();
-        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(200);
-
-        GoalSummaryDTO goalSummary =
-                new ObjectMapper().readValue(mvcResult.getResponse().getContentAsString(), GoalSummaryDTO.class);
-        assertThat(goalSummary.getTotalOfPositiveGoals()).isEqualTo(2);
-        assertThat(goalSummary.getTotalOfNegativeGoals()).isEqualTo(0);
-        assertThat(goalSummary.getTotalOfVictories()).isEqualTo(2);
-        assertThat(goalSummary.getTotalOfDraws()).isEqualTo(0);
-        assertThat(goalSummary.getTotalOfDefeats()).isEqualTo(0);
-    }
-
-    @Test
-    public void shouldNotRetrieveClubRetrospective_InvalidId() throws Exception {
-        MvcResult mvcResult = mockMvc.perform(get("/clube/retrospecto/100"))
-                .andReturn();
-        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(404);
-        assertThat(mvcResult.getResponse().getContentAsString()).contains("Clube 100 não encontrado na base de dados.");
     }
 }

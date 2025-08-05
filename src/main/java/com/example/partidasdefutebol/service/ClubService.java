@@ -32,7 +32,7 @@ public class ClubService {
 
     public void doesClubExist(Long clubId) throws CustomException {
         if (!clubRepository.existsById(clubId)) {
-            throw new AmqpRejectAndDontRequeueException("Clube " + clubId + " nao encontrado na base de dados.");
+            throw new AmqpRejectAndDontRequeueException("Clube " + clubId + " não encontrado na base de dados.");
         }
     }
 
@@ -71,9 +71,8 @@ public class ClubService {
     public void wasClubCreatedBeforeGame(Long clubid,
                                          LocalDateTime matchDate) {
         if (!clubRepository.findById(clubid).get().getCreatedOn().isAfter(ChronoLocalDate.from(matchDate))) {
-            String message = "A data de criação do clube " + clubRepository.findById(clubid).get().getName() +
-                    " deve ser anterior ao registro de alguma partida cadastrada.";
-            throw new AmqpRejectAndDontRequeueException(message);
+            throw new AmqpRejectAndDontRequeueException("A data de criação do clube " + clubRepository.findById(clubid).get().getName() +
+                    " deve ser anterior ao registro de alguma partida cadastrada.");
         }
     }
 
