@@ -123,14 +123,14 @@ public class ClubControllerTest {
 
     @Test
     public void shouldUpdateClub_AllValidData() throws Exception {
-        Long clubId = 1L;
-        //Before update
+        //TODO: checar este teste. Está errado.//Before update
         Club clubToBeUpdated = new Club();
         clubToBeUpdated.setName("Palmeiras");
         clubToBeUpdated.setStateAcronym("SP");
         clubToBeUpdated.setCreatedOn(LocalDate.of(1990, 1, 1));
         clubToBeUpdated.setIsActive(true);
         clubService.createClub(clubToBeUpdated);
+        Long clubId = 1L;
         assertThat(clubService.findClubById(clubId).getName()).isEqualTo("Palmeiras");
         assertThat(clubService.findClubById(clubId).getStateAcronym()).isEqualTo("SP");
         assertThat(clubService.findClubById(clubId).getCreatedOn()).isEqualTo(LocalDate.of(1990, 1, 1));

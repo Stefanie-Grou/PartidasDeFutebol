@@ -52,6 +52,7 @@ public class stadiumServiceTest {
     }
 
     @Test
+    //Todo: este teste não faz update.
     public void shouldUpdateStadium() throws Exception {
         Long stadiumId = 1L;
         ControllerStadiumDTO stadiumFromController = new ControllerStadiumDTO();
