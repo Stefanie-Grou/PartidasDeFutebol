@@ -52,9 +52,11 @@ public class stadiumServiceTest {
     }
 
     @Test
-    //Todo: este teste não faz update.
     public void shouldUpdateStadium() throws Exception {
+        ControllerStadiumDTO stadiumEntity = new ControllerStadiumDTO("Pacaembu", "12070012");
+        stadiumService.saveStadium(stadiumEntity);
         Long stadiumId = 1L;
+
         ControllerStadiumDTO stadiumFromController = new ControllerStadiumDTO();
         stadiumFromController.setStadiumName("Nacional");
         stadiumFromController.setCep("12070012");

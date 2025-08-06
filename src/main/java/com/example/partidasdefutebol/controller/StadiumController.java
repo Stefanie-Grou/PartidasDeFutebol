@@ -18,12 +18,7 @@ public class StadiumController {
 
     @PostMapping
     public ResponseEntity<?> saveStadium(@Valid @RequestBody ControllerStadiumDTO stadiumFromController) {
-        try {
-            Stadium savedStadiumEntity = stadiumService.saveStadium(stadiumFromController);
-            return ResponseEntity.status(201).body(savedStadiumEntity);
-        } catch (CustomException e) {
-            return ResponseEntity.status(e.getStatusCode()).body(e.getMessage());
-        }
+        return ResponseEntity.status(201).body(stadiumService.saveStadium(stadiumFromController));
     }
 
     @PutMapping
@@ -32,22 +27,14 @@ public class StadiumController {
             @PathVariable Long id,
             @Valid @RequestBody ControllerStadiumDTO stadiumFromController
     ) {
-        try {
-            Stadium updatedStadiumEntity = stadiumService.updateStadium(id, stadiumFromController);
-            return ResponseEntity.status(200).body(updatedStadiumEntity);
-        } catch (CustomException e) {
-            return ResponseEntity.status(e.getStatusCode()).body(e.getMessage());
-        }
+        return ResponseEntity.status(200).body(stadiumService.updateStadium(id, stadiumFromController));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<?> findStadiumById(@PathVariable Long id) {
-        try {
-            ResponseEntity<Stadium> optionalStadium = stadiumService.retrieveStadiumInfo(id);
-            return ResponseEntity.status(optionalStadium.getStatusCode()).body(optionalStadium.getBody());
-        } catch (CustomException e) {
-            return ResponseEntity.status(e.getStatusCode()).body(e.getMessage());
-        }
+        stadiumService.doesStadiumExist(id);
+        ResponseEntity<Stadium> optionalStadium = stadiumService.retrieveStadiumInfo(id);
+        return ResponseEntity.status(optionalStadium.getStatusCode()).body(optionalStadium.getBody());
     }
 
     @GetMapping
@@ -60,6 +47,6 @@ public class StadiumController {
             @RequestParam(defaultValue = "asc") String sortOrder) {
 
         Page<Stadium> stadiums = stadiumService.getStadiums(name, state, page, size, sortStadiumsByField, sortOrder);
-        return ResponseEntity.ok(stadiums);
+        return ResponseEntity.status(200).body(stadiums);
     }
 }

@@ -50,7 +50,6 @@ public class matchesControllerTest {
                 .andReturn();
         String response = mvcResult.getResponse().getContentAsString();
         assertThat(mvcResult.getResponse().getStatus()).isEqualTo(200);
-
     }
 
     @Test

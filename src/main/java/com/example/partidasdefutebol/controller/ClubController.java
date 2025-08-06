@@ -1,17 +1,13 @@
 package com.example.partidasdefutebol.controller;
 
-import com.example.partidasdefutebol.dto.GoalSummaryDTO;
 import com.example.partidasdefutebol.dto.QueueMessageDTO;
-import com.example.partidasdefutebol.dto.SummaryByOpponentDTO;
 import com.example.partidasdefutebol.entities.Club;
-import com.example.partidasdefutebol.exceptions.CustomException;
 import com.example.partidasdefutebol.rabbitMQ.MessageSender;
 import com.example.partidasdefutebol.service.ClubService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import jakarta.validation.Valid;
-import org.springframework.amqp.AmqpRejectAndDontRequeueException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -56,22 +52,16 @@ public class ClubController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteClubById(@PathVariable Long id) {
-        try {
-            Club onDeletionClub = clubService.deleteClub(id);
-            return ResponseEntity.status(204).body(onDeletionClub);
-        } catch (CustomException e) {
-            return ResponseEntity.status(e.getStatusCode()).body(e.getMessage());
-        }
+    public ResponseEntity<?> deleteClubById(@PathVariable Long id) throws Exception {
+        clubService.doesClubExist(id);
+        Club onDeletionClub = clubService.deleteClub(id);
+        return ResponseEntity.status(204).body(onDeletionClub);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<?> fetchClubInfoById(@PathVariable Long id) {
-        try {
-            return ResponseEntity.status(200).body(clubService.findClubById(id));
-        } catch (CustomException e) {
-            return ResponseEntity.status(e.getStatusCode()).body(e.getMessage());
-        }
+        clubService.doesClubExist(id);
+        return ResponseEntity.status(200).body(clubService.findClubById(id));
     }
 
     @GetMapping
@@ -85,36 +75,24 @@ public class ClubController {
             @RequestParam(defaultValue = "asc") String sortOrder) {
 
         Page<Club> clubs = clubService.getClubs(name, state, isActive, page, size, sortField, sortOrder);
-        return ResponseEntity.ok(clubs);
+        return ResponseEntity.status(200).body(clubs);
     }
 
     @GetMapping("/retrospecto/{id}")
     public ResponseEntity<?> getClubRetrospectiveById(@PathVariable Long id) {
-        try {
-            GoalSummaryDTO goalSummary = clubService.getClubRetrospective(id);
-            return ResponseEntity.status(200).body(goalSummary);
-        } catch (CustomException e) {
-            return ResponseEntity.status(e.getStatusCode()).body(e.getMessage());
-        }
+        clubService.doesClubExist(id);
+        return ResponseEntity.status(200).body(clubService.getClubRetrospective(id));
     }
 
     @GetMapping("/retrospecto-por-oponente/{id}")
     public ResponseEntity<?> getClubRetrospectiveByOpponent(@PathVariable Long id) {
-        try {
-            Page<SummaryByOpponentDTO> summaryByOpponent = clubService.getClubRetrospectiveByOpponent(id);
-            return ResponseEntity.status(200).body(summaryByOpponent);
-        } catch (CustomException e) {
-            return ResponseEntity.status(e.getStatusCode()).body(e.getMessage());
-        }
+        clubService.doesClubExist(id);
+        return ResponseEntity.status(200).body(clubService.getClubRetrospectiveByOpponent(id));
     }
 
     @GetMapping("/ranking")
     public ResponseEntity<?> getClubsRanking(
             @RequestParam String rankingFactor) {
-        try {
-            return ResponseEntity.status(200).body(clubService.callClubRankingDispatcher(rankingFactor));
-        } catch (CustomException e) {
-            return ResponseEntity.status(e.getStatusCode()).body(e.getMessage());
-        }
+        return ResponseEntity.status(200).body(clubService.callClubRankingDispatcher(rankingFactor));
     }
 }

@@ -2,6 +2,7 @@ package com.example.partidasdefutebol.service;
 
 import com.example.partidasdefutebol.dto.AddressDTO;
 import com.example.partidasdefutebol.exceptions.CustomException;
+import org.springframework.amqp.AmqpRejectAndDontRequeueException;
 import org.springframework.web.client.RestTemplate;
 
 public class AddressSearchService {
@@ -11,7 +12,8 @@ public class AddressSearchService {
         String url = "https://viacep.com.br/ws/" + cep + "/json/";
         AddressDTO address = restTemplate.getForObject(url, AddressDTO.class);
         if (address.getCep() == null) {
-            throw new CustomException("O CEP informado não é válido.", 409);
+            //todo: COME BACK HERE
+            throw new AmqpRejectAndDontRequeueException("O CEP informado não é válido.");
         }
     return address;
     }

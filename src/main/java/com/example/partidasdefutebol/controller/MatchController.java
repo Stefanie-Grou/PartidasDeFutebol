@@ -1,7 +1,6 @@
 package com.example.partidasdefutebol.controller;
 
 import com.example.partidasdefutebol.entities.Matches;
-import com.example.partidasdefutebol.exceptions.CustomException;
 import com.example.partidasdefutebol.service.MatchService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,46 +18,27 @@ public class MatchController {
     // Requisito I#6 -> Criar uma partida
     @PostMapping
     public ResponseEntity<?> createMatch(@Valid @RequestBody Matches matchEntity) {
-        try {
-            Matches savedMatchEntity = matchService.createMatch(matchEntity);
-            return ResponseEntity.status(201).body(savedMatchEntity);
-        } catch (CustomException e) {
-            return ResponseEntity.status(e.getStatusCode()).body(e.getMessage());
-        }
+        return ResponseEntity.status(201).body(matchService.createMatch(matchEntity));
     }
 
     // Requisito I#7 -> Atualizar uma partida
     @PutMapping
     @RequestMapping("/{id}")
     public ResponseEntity<?> updateMatchById(@PathVariable Long id, @RequestBody Matches requestedToUpdateMatchEntity) {
-        try {
-            Matches updatedMatchEntity = matchService.updateMatch(id, requestedToUpdateMatchEntity);
-            return ResponseEntity.status(200).body(updatedMatchEntity);
-        } catch (CustomException e) {
-            return ResponseEntity.status(e.getStatusCode()).body(e.getMessage());
-        }
+        return ResponseEntity.status(200).body(matchService.updateMatch(id, requestedToUpdateMatchEntity));
     }
 
     // Requisito I#8 -> Deletar uma partida
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteMatchById(@PathVariable Long id) {
-        try {
-            matchService.deleteMatch(id);
-            return ResponseEntity.noContent().build();
-        } catch (CustomException e) {
-            return ResponseEntity.status(e.getStatusCode()).body(e.getMessage());
-        }
+        matchService.deleteMatch(id);
+        return ResponseEntity.noContent().build();
     }
 
     // Requisito I#9 -> Buscar uma partida
     @GetMapping("/{id}")
     public ResponseEntity<?> getMatchById(@PathVariable Long id) {
-        try {
-            matchService.getMatchById(id);
-            return ResponseEntity.status(200).body(matchService.getMatchById(id));
-        } catch (CustomException e) {
-            return ResponseEntity.status(e.getStatusCode()).body(e.getMessage());
-        }
+        return ResponseEntity.status(200).body(matchService.getMatchById(id));
     }
 
     // Requisito I#10 -> Buscar todas as partidas + III#1 -> Adicionar goleadas
@@ -74,17 +54,13 @@ public class MatchController {
             @RequestParam(required = false) String showOnly) {
         Page<Matches> matches = matchService.getMatches
                 (club, stadium, page, size, sortField, sortOrder, isRout, showOnly);
-        return ResponseEntity.ok(matches);
+        return ResponseEntity.status(200).body(matches);
     }
 
     // Requisito II#3 -> Buscar uma partida entre dois clubes
     @GetMapping("/{id1}/versus/{id2}")
     public ResponseEntity<?> getMatchesBetweenTwoClubs(@PathVariable Long id1, @PathVariable Long id2) {
-        try {
-            return ResponseEntity.status(200).body(matchService.getMatchBetweenClubs(id1, id2));
-        } catch (CustomException e) {
-            return ResponseEntity.status(e.getStatusCode()).body(e.getMessage());
-        }
+        return ResponseEntity.status(200).body(matchService.getMatchBetweenClubs(id1, id2));
     }
 
     @GetMapping("/goleadas")

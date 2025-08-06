@@ -123,25 +123,22 @@ public class ClubControllerTest {
 
     @Test
     public void shouldUpdateClub_AllValidData() throws Exception {
-        //TODO: checar este teste. Está errado.//Before update
+        //Before update
+        Club clubEntity = createsValidClub();
+        Long clubId = clubEntity.getId();
+
+        //To update
         Club clubToBeUpdated = new Club();
         clubToBeUpdated.setName("Palmeiras");
         clubToBeUpdated.setStateAcronym("SP");
         clubToBeUpdated.setCreatedOn(LocalDate.of(1990, 1, 1));
         clubToBeUpdated.setIsActive(true);
-        clubService.createClub(clubToBeUpdated);
-        Long clubId = 1L;
-        assertThat(clubService.findClubById(clubId).getName()).isEqualTo("Palmeiras");
-        assertThat(clubService.findClubById(clubId).getStateAcronym()).isEqualTo("SP");
-        assertThat(clubService.findClubById(clubId).getCreatedOn()).isEqualTo(LocalDate.of(1990, 1, 1));
-        assertThat(clubService.findClubById(clubId).getIsActive()).isEqualTo(true);
 
         //Update
-        MvcResult mvcResult = mockMvc.perform(put("/clube/{id}", clubId)
+        MvcResult mvcResult = mockMvc.perform(put("/clube/{id}",clubId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(clubToBeUpdated)))
                 .andReturn();
-
 
         assertThat(mvcResult.getResponse().getStatus()).isEqualTo(202);
         assertThat(mvcResult.getResponse().getContentAsString()).contains("Aguardando processamento");

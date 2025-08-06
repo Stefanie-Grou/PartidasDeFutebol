@@ -48,7 +48,6 @@ public class ClubService {
     }
 
     public Club deleteClub(Long id) {
-        doesClubExist(id);
         Club existingClubEntity = clubRepository.findById(id).get();
         existingClubEntity.setIsActive(false);
         return clubRepository.save(existingClubEntity);
@@ -90,7 +89,6 @@ public class ClubService {
     }
 
     public GoalSummaryDTO getClubRetrospective(Long id) throws ResponseStatusException {
-        doesClubExist(id);
         List matchResultsByClub = clubRepository.findMatchResultsByClubId(id);
         Integer positiveGoals = clubRepository.findTotalPositiveGoalsByClubId(id);
         Integer negativeGoals = clubRepository.findTotalNegativeGoalsByClubId(id);
@@ -101,7 +99,6 @@ public class ClubService {
     }
 
     public Page<SummaryByOpponentDTO> getClubRetrospectiveByOpponent(Long id) throws ResponseStatusException {
-        doesClubExist(id);
         List<Object[]> matchResultsByClub = clubRepository.findClubRetrospectiveByIdAndOpponent(id);
         List<SummaryByOpponentDTO> summaryList = new ArrayList<>();
         for (Object[] matchResultByClub : matchResultsByClub) {
@@ -135,7 +132,7 @@ public class ClubService {
                 returnedRankingFromDatabase = fetchClubRankingByTotalOfPointsData();
                 break;
             default:
-                throw new CustomException("Fator de classificação inválido", 409);
+                throw new AmqpRejectAndDontRequeueException("Fator de classificação inválido");
         }
         return setReturnedRankingInfoIntoEntity(returnedRankingFromDatabase);
     }
