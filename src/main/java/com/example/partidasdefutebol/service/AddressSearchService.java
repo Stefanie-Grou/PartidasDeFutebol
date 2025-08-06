@@ -1,7 +1,6 @@
 package com.example.partidasdefutebol.service;
 
 import com.example.partidasdefutebol.dto.AddressDTO;
-import com.example.partidasdefutebol.exceptions.CustomException;
 import org.springframework.amqp.AmqpRejectAndDontRequeueException;
 import org.springframework.web.client.RestTemplate;
 
