@@ -32,7 +32,7 @@ public class ClubService {
 
     public void doesClubExist(Long clubId) throws CustomException {
         if (!clubRepository.existsById(clubId)) {
-            throw new AmqpRejectAndDontRequeueException("Clube " + clubId + " nao encontrado na base de dados.");
+            throw new AmqpRejectAndDontRequeueException("Clube " + clubId + " não encontrado na base de dados.");
         }
     }
 
@@ -48,7 +48,6 @@ public class ClubService {
     }
 
     public Club deleteClub(Long id) {
-        doesClubExist(id);
         Club existingClubEntity = clubRepository.findById(id).get();
         existingClubEntity.setIsActive(false);
         return clubRepository.save(existingClubEntity);
@@ -71,9 +70,8 @@ public class ClubService {
     public void wasClubCreatedBeforeGame(Long clubid,
                                          LocalDateTime matchDate) {
         if (!clubRepository.findById(clubid).get().getCreatedOn().isAfter(ChronoLocalDate.from(matchDate))) {
-            String message = "A data de criação do clube " + clubRepository.findById(clubid).get().getName() +
-                    " deve ser anterior ao registro de alguma partida cadastrada.";
-            throw new AmqpRejectAndDontRequeueException(message);
+            throw new AmqpRejectAndDontRequeueException("A data de criação do clube " + clubRepository.findById(clubid).get().getName() +
+                    " deve ser anterior ao registro de alguma partida cadastrada.");
         }
     }
 
@@ -91,7 +89,6 @@ public class ClubService {
     }
 
     public GoalSummaryDTO getClubRetrospective(Long id) throws ResponseStatusException {
-        doesClubExist(id);
         List matchResultsByClub = clubRepository.findMatchResultsByClubId(id);
         Integer positiveGoals = clubRepository.findTotalPositiveGoalsByClubId(id);
         Integer negativeGoals = clubRepository.findTotalNegativeGoalsByClubId(id);
@@ -102,7 +99,6 @@ public class ClubService {
     }
 
     public Page<SummaryByOpponentDTO> getClubRetrospectiveByOpponent(Long id) throws ResponseStatusException {
-        doesClubExist(id);
         List<Object[]> matchResultsByClub = clubRepository.findClubRetrospectiveByIdAndOpponent(id);
         List<SummaryByOpponentDTO> summaryList = new ArrayList<>();
         for (Object[] matchResultByClub : matchResultsByClub) {
@@ -136,7 +132,7 @@ public class ClubService {
                 returnedRankingFromDatabase = fetchClubRankingByTotalOfPointsData();
                 break;
             default:
-                throw new CustomException("Fator de classificação inválido", 409);
+                throw new AmqpRejectAndDontRequeueException("Fator de classificação inválido");
         }
         return setReturnedRankingInfoIntoEntity(returnedRankingFromDatabase);
     }

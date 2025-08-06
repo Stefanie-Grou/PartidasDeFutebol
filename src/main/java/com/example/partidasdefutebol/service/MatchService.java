@@ -38,7 +38,6 @@ public class MatchService {
         clubService.isClubInactive(clubService.findClubById(matchEntity.getHomeClubId()));
         clubService.isClubInactive(clubService.findClubById(matchEntity.getAwayClubId()));
         stadiumService.doesStadiumExist(matchEntity.getStadiumId());
-
         return matchRepository.save(matchEntity);
     }
 

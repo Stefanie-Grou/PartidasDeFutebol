@@ -18,7 +18,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @ControllerAdvice
-public class CustomExceptionHandler {
+public class CustomExceptionHandler extends Exception {
 
     private static final Logger logger = LoggerFactory.getLogger(ClubService.class);
 

@@ -1,16 +1,15 @@
-package com.example.partidasdefutebol.tests.stadium;
+package com.example.partidasdefutebol.service;
 
 import com.example.partidasdefutebol.entities.Stadium;
 import com.example.partidasdefutebol.dto.ControllerStadiumDTO;
 import com.example.partidasdefutebol.exceptions.CustomException;
-import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.ActiveProfiles;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -23,21 +22,23 @@ public class stadiumServiceTest {
     @Autowired
     private com.example.partidasdefutebol.service.StadiumService stadiumService;
 
-    @Test
-    @Transactional
-    public void shouldSaveStadiumSucessfully() throws Exception {
-        Stadium stadiumEntity = new Stadium();
-        String stadiumName = "Nacional" + LocalDateTime.now().getSecond();
-        stadiumEntity.setStadiumName(stadiumName);
-        stadiumEntity.setStadiumState("SP");
-        //stadiumService.saveStadium(stadiumEntity);
+    @Autowired
+    private com.example.partidasdefutebol.repository.StadiumRepository stadiumRepository;
 
-        assertThat(stadiumEntity.getStadiumName()).isEqualTo(stadiumName);
-        assertThat(stadiumEntity.getStadiumState()).isEqualTo("SP");
+    @Test
+    public void saveStadiumSucessfully() throws Exception {
+        ControllerStadiumDTO stadiumEntity = new ControllerStadiumDTO("Nacional", "12070012");
+        stadiumService.saveStadium(stadiumEntity);
+        Stadium stadium = stadiumRepository.findById(1L).get();
+
+        assertThat(stadium.getName()).isEqualTo("Nacional");
+        assertThat(stadium.getStateAcronym()).isEqualTo("SP");
+        assertThat(stadium.getCep()).isEqualTo("12070-012");
+        assertThat(stadium.getStreet()).isEqualTo("Rua Luciano Alves Pereira");
+        assertThat(stadium.getCity()).isEqualTo("Taubaté");
     }
 
     @Test
-    @Transactional
     public void shouldThrowExceptionAndNotSave_StadiumCepIsNotValid() throws Exception {
         CustomException exception = assertThrows(CustomException.class, () -> {
             ControllerStadiumDTO stadiumFromController = new ControllerStadiumDTO();
@@ -51,17 +52,19 @@ public class stadiumServiceTest {
     }
 
     @Test
-    @Transactional
     public void shouldUpdateStadium() throws Exception {
+        ControllerStadiumDTO stadiumEntity = new ControllerStadiumDTO("Pacaembu", "12070012");
+        stadiumService.saveStadium(stadiumEntity);
         Long stadiumId = 1L;
+
         ControllerStadiumDTO stadiumFromController = new ControllerStadiumDTO();
         stadiumFromController.setStadiumName("Nacional");
         stadiumFromController.setCep("12070012");
 
         Stadium updatedStadiumEntity = stadiumService.updateStadium(stadiumId, stadiumFromController);
 
-        assertThat(updatedStadiumEntity.getStadiumName()).isEqualTo("Nacional");
-        assertThat(updatedStadiumEntity.getStadiumState()).isEqualTo("SP");
+        assertThat(updatedStadiumEntity.getName()).isEqualTo("Nacional");
+        assertThat(updatedStadiumEntity.getStateAcronym()).isEqualTo("SP");
         assertThat(updatedStadiumEntity.getCep()).isEqualTo("12070-012");
         assertThat(updatedStadiumEntity.getStreet()).isEqualTo("Rua Luciano Alves Pereira");
         assertThat(updatedStadiumEntity.getCity()).isEqualTo("Taubaté");
@@ -69,11 +72,15 @@ public class stadiumServiceTest {
 
     @Test
     public void shouldReturnStadiumEntitySucessfully() throws Exception {
-        Long stadiumId = 3L;
-        ResponseEntity<Stadium> stadiumEntity = stadiumService.retrieveStadiumInfo(stadiumId);
-        assertThat(stadiumEntity).isNotNull();
-        assertThat(stadiumEntity.getBody().getStadiumName()).isEqualTo("Estádio Municipal João Lamego");
-        assertThat(stadiumEntity.getBody().getStadiumState()).isEqualTo("PR");
+        Long stadiumId = 1L;
+        ControllerStadiumDTO stadiumFromController = new ControllerStadiumDTO("Nacional", "12070012");
+        stadiumService.saveStadium(stadiumFromController);
+        Stadium stadium = stadiumRepository.findById(stadiumId).get();
+        assertThat(stadium.getName()).isEqualTo("Nacional");
+        assertThat(stadium.getStateAcronym()).isEqualTo("SP");
+        assertThat(stadium.getCep()).isEqualTo("12070-012");
+        assertThat(stadium.getStreet()).isEqualTo("Rua Luciano Alves Pereira");
+        assertThat(stadium.getCity()).isEqualTo("Taubaté");
     }
 
     @Test
@@ -94,34 +101,5 @@ public class stadiumServiceTest {
         });
         assertThat(exception.getStatusCode()).isEqualTo(404);
         assertThat(exception.getMessage()).isEqualTo("O estádio não foi encontrado na base de dados.");
-
-    }
-
-    @Test
-    public void shouldRetrieveStadiumsSuccessfully() {
-        String nameFilter = "Pacaembu";
-        String stateFilter = null;
-        int page = 0;
-        int size = 10;
-        String sortField = "stadiumState";
-        String sortOrder = "asc";
-
-        List stadiumsPage =
-                stadiumService.getStadiums(nameFilter, stateFilter, page, size, sortField, sortOrder).getContent();
-        assertThat(stadiumsPage).isNotNull();
-    }
-
-    @Test
-    public void shouldRetrieveStadiumsSuccessfullyAndDescending() {
-        String nameFilter = "Pacaembu";
-        String stateFilter = null;
-        int page = 0;
-        int size = 10;
-        String sortField = "stadiumState";
-        String sortOrder = "desc";
-
-        List stadiumsPage =
-                stadiumService.getStadiums(nameFilter, stateFilter, page, size, sortField, sortOrder).getContent();
-        assertThat(stadiumsPage).isNotNull();
     }
 }

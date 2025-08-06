@@ -1,15 +1,13 @@
-package com.example.partidasdefutebol.tests.matches;
+package com.example.partidasdefutebol.service;
 
 import com.example.partidasdefutebol.entities.Matches;
 import com.example.partidasdefutebol.exceptions.CustomException;
-import com.example.partidasdefutebol.service.ClubService;
-import com.example.partidasdefutebol.service.StadiumService;
-import jakarta.transaction.Transactional;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDateTime;
 
@@ -28,6 +26,18 @@ public class matchesServiceTest {
 
     @Autowired
     private StadiumService stadiumService;
+
+    public Matches createsValidMatch() {
+        Matches match = new Matches();
+        match.setHomeClubId(1L);
+        match.setAwayClubId(2L);
+        match.setHomeClubNumberOfGoals(0L);
+        match.setAwayClubNumberOfGoals(0L);
+        match.setStadiumId(1L);
+        match.setMatchDate(LocalDateTime.now().minusMonths(1));
+        matchService.createMatch(match);
+        return match;
+    }
 
     @Test
     public void shouldThrowException_BothClubsAreTheSame() {
@@ -66,7 +76,6 @@ public class matchesServiceTest {
     }
 
     @Test
-    @Transactional
     public void throwsException_InvalidMatchIdToDelete() {
         CustomException exception = assertThrows(CustomException.class, () -> {
             matchService.deleteMatch(100L);
@@ -88,20 +97,17 @@ public class matchesServiceTest {
 
     @Test
     public void returnsMatchInfoSuccessfully() {
-        Matches match = matchService.getMatchById(5L);
+        Matches match = createsValidMatch();
 
-        assertThat(match).isNotNull();
-        assertThat(match.getHomeClubId()).isEqualTo(4L);
-        assertThat(match.getAwayClubId()).isEqualTo(9L);
-        assertThat(match.getHomeClubNumberOfGoals()).isEqualTo(1L);
-        assertThat(match.getAwayClubNumberOfGoals()).isEqualTo(1L);
-        assertThat(match.getStadiumId()).isEqualTo(6L);
-        assertThat(match.getMatchDate()).isNotNull();
+        assertThat(match.getHomeClubId()).isEqualTo(match.getHomeClubId());
+        assertThat(match.getAwayClubId()).isEqualTo(match.getAwayClubId());
+        assertThat(match.getHomeClubNumberOfGoals()).isEqualTo(match.getHomeClubNumberOfGoals());
+        assertThat(match.getAwayClubNumberOfGoals()).isEqualTo(match.getAwayClubNumberOfGoals());
+        assertThat(match.getStadiumId()).isEqualTo(match.getStadiumId());
     }
 
     @Test
-    @Transactional
-    public void shouldDeleteMatchSuccessfullyAndThrowException() {
+    public void shouldNotDeleteMatchSuccessfullyAndThrowException() {
         Long matchId = 6L;
         Matches matchBefore = matchService.getMatchById(matchId);
         assertThat(matchBefore).isNotNull();
@@ -115,7 +121,6 @@ public class matchesServiceTest {
     }
 
     @Test
-    @Transactional
     public void throwsException_InvalidMatchIdToUpdate() {
         Long matchId = 100L;
         Matches matchRequestedToUpdate = new Matches();

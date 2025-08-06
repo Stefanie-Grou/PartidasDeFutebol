@@ -1,6 +1,0 @@
-2025-08-04T12:40:16.291-03:00 ERROR 23503 --- [PartidasdeFutebol] [http-nio-8080-exec-1] c.e.p.service.ClubService                : Clube 1144 nao encontrado na base de dados.
-2025-08-04T12:46:38.562-03:00 ERROR 24301 --- [PartidasdeFutebol] [http-nio-8080-exec-1] c.e.p.service.ClubService                : O estado JJ é inválido.
-2025-08-04T12:47:44.322-03:00 ERROR 24508 --- [PartidasdeFutebol] [http-nio-8080-exec-2] c.e.p.service.ClubService                : O estado XJ é inválido.
-2025-08-04T12:51:14.130-03:00 ERROR 24934 --- [PartidasdeFutebol] [http-nio-8080-exec-4] c.e.p.service.ClubService                : O estado RJ é inválido.
-2025-08-04T13:06:10.896-03:00 ERROR 26889 --- [PartidasdeFutebol] [http-nio-8080-exec-1] c.e.p.service.ClubService                : O estado PJ é inválido.
-2025-08-04T13:18:22.246-03:00 ERROR 28633 --- [PartidasdeFutebol] [http-nio-8080-exec-3] c.e.p.service.ClubService                : O estado OJ é inválido.

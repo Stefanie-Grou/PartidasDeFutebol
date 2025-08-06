@@ -5,6 +5,7 @@ import com.example.partidasdefutebol.entities.Stadium;
 import com.example.partidasdefutebol.dto.ControllerStadiumDTO;
 import com.example.partidasdefutebol.exceptions.CustomException;
 import com.example.partidasdefutebol.repository.StadiumRepository;
+import org.springframework.amqp.AmqpRejectAndDontRequeueException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -47,13 +48,8 @@ public class StadiumService {
     }
 
     public ResponseEntity<Stadium> retrieveStadiumInfo(Long requestedStadiumId) {
-        Optional<Stadium> optionalStadium = stadiumRepository.findById(requestedStadiumId);
-        if (optionalStadium.isPresent()) {
-            Stadium stadiumEntity = optionalStadium.get();
-            return ResponseEntity.ok(stadiumEntity);
-        } else {
-            throw new CustomException("O estádio não foi encontrado na base de dados.", 404);
-        }
+        doesStadiumExist(requestedStadiumId);
+        return ResponseEntity.ok(stadiumRepository.findById(requestedStadiumId).get());
     }
 
     public Page<Stadium> getStadiums
@@ -69,7 +65,8 @@ public class StadiumService {
 
     public void doesStadiumExist(Long stadiumId) throws ResponseStatusException {
         if (!stadiumRepository.existsById(stadiumId)) {
-            throw new CustomException("O estádio não foi encontrado na base de dados.", 404);
+            //throw new CustomException("O estádio não foi encontrado na base de dados.", 404);
+            throw new AmqpRejectAndDontRequeueException("O estádio não foi encontrado na base de dados.");
         }
     }
 }
