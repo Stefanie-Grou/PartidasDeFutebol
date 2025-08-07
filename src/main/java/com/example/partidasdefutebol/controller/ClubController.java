@@ -25,7 +25,7 @@ import static com.example.partidasdefutebol.util.CheckValidBrazilianState.isVali
 
 @RestController
 @RequestMapping("/clube")
-@Tag(name = "Clube", description = "Gerenciamento dos registros de clubes, bem como buscas detalhadas")
+@Tag(name = "Clube", description = "Gerenciamento dos registros de clubes, bem como buscas básicas edetalhadas")
 public class ClubController {
     @Autowired
     private ClubService clubService;

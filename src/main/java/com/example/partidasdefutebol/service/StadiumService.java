@@ -65,8 +65,7 @@ public class StadiumService {
 
     public void doesStadiumExist(Long stadiumId) throws ResponseStatusException {
         if (!stadiumRepository.existsById(stadiumId)) {
-            //throw new CustomException("O estádio não foi encontrado na base de dados.", 404);
-            throw new AmqpRejectAndDontRequeueException("O estádio não foi encontrado na base de dados.");
+            throw new CustomException("O estádio não foi encontrado na base de dados.", 404);
         }
     }
 }
