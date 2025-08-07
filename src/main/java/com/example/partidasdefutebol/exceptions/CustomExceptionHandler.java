@@ -21,7 +21,7 @@ import java.util.Map;
 public class CustomExceptionHandler extends Exception {
 
     private static final Logger logger = LoggerFactory.getLogger(ClubService.class);
-
+/*
     @ExceptionHandler(CustomException.class)
     public ResponseEntity<ErrorResponse> handleConflictException(CustomException ex) {
         ErrorResponse errorResponse = new ErrorResponse() {
@@ -40,6 +40,8 @@ public class CustomExceptionHandler extends Exception {
                 .status(ex.getStatusCode())
                 .body(errorResponse);
     }
+
+ */
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
@@ -60,5 +62,13 @@ public class CustomExceptionHandler extends Exception {
         errors.put("message", ex.getMessage());
         logger.error(ex.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
+    }
+
+    @ExceptionHandler(CustomException.class)
+    public ResponseEntity<Map<String, String>> handleCustomException(CustomException ex) {
+        Map<String, String> errors = new HashMap<>();
+        errors.put("message", ex.getMessage());
+        logger.error(ex.getMessage());
+        return ResponseEntity.status(ex.getStatusCode()).body(errors);
     }
 }

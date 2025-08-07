@@ -69,8 +69,9 @@ public class ClubService {
 
     public void wasClubCreatedBeforeGame(Long clubid,
                                          LocalDateTime matchDate) {
-        if (!clubRepository.findById(clubid).get().getCreatedOn().isAfter(ChronoLocalDate.from(matchDate))) {
-            throw new AmqpRejectAndDontRequeueException("A data de criação do clube " + clubRepository.findById(clubid).get().getName() +
+        if (!clubRepository.findById(clubid).get().getCreatedOn().isBefore(ChronoLocalDate.from(matchDate))) {
+            throw new AmqpRejectAndDontRequeueException("A data de criação do clube " +
+                    clubRepository.findById(clubid).get().getName() +
                     " deve ser anterior ao registro de alguma partida cadastrada.");
         }
     }

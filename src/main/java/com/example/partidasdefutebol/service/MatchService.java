@@ -33,11 +33,6 @@ public class MatchService {
 
     public Matches createMatch(Matches matchEntity) {
         CallCommonValidationForMatch(matchEntity);
-        clubService.wasClubCreatedBeforeGame(matchEntity.getHomeClubId(), matchEntity.getMatchDate());
-        clubService.wasClubCreatedBeforeGame(matchEntity.getAwayClubId(), matchEntity.getMatchDate());
-        clubService.isClubInactive(clubService.findClubById(matchEntity.getHomeClubId()));
-        clubService.isClubInactive(clubService.findClubById(matchEntity.getAwayClubId()));
-        stadiumService.doesStadiumExist(matchEntity.getStadiumId());
         return matchRepository.save(matchEntity);
     }
 
@@ -154,14 +149,14 @@ public class MatchService {
 
     public Page<RoutsDTO> getAllRouts() {
         List<Object[]> allRouts = matchRepository.getAllRouts();
-        List<RoutsDTO> matchesWithEqualPlusGoalDiff = new ArrayList<>();
+        List<RoutsDTO> matchesWithEqualPlusThreeGoalDiff = new ArrayList<>();
         for (Object[] allRoutsIteration : allRouts) {
             String clubsOnMatch = allRoutsIteration[0].toString();
             String stadiumName = allRoutsIteration[1].toString();
             String matchDate = allRoutsIteration[2].toString();
             RoutsDTO routs = new RoutsDTO(clubsOnMatch, stadiumName, matchDate);
-            matchesWithEqualPlusGoalDiff.add(routs);
+            matchesWithEqualPlusThreeGoalDiff.add(routs);
         }
-        return new PageImpl<>(matchesWithEqualPlusGoalDiff);
+        return new PageImpl<>(matchesWithEqualPlusThreeGoalDiff);
     }
 }
