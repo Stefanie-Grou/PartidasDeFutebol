@@ -11,7 +11,7 @@ public class AddressSearchService {
         String url = "https://viacep.com.br/ws/" + cep + "/json/";
         AddressDTO address = restTemplate.getForObject(url, AddressDTO.class);
         if (address.getCep() == null) {
-            //todo: COME BACK HERE
+            //todo: COME BACK HERE // why?
             throw new AmqpRejectAndDontRequeueException("O CEP informado não é válido.");
         }
     return address;

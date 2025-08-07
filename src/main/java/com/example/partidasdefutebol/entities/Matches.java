@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
-@Schema(description = "Estidade Partida. \n" +
+@Schema(description = "Entidade de registro de Partida. \n" +
                     "Registrado no banco de dados a partir do input na Controller.")
 public class Matches {
     @Id
