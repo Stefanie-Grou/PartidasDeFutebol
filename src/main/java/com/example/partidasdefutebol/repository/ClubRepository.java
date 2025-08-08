@@ -132,23 +132,23 @@ public interface ClubRepository extends JpaRepository<Club, Long> {
             ORDER BY totalGoals DESC""")
     List<Object[]> getRankingByTotalGoals();
 
-    @Query(nativeQuery = true, value = "SELECT c.club_name, clubPoints.totalPoints FROM\n" +
+    @Query(nativeQuery = true, value = "SELECT c.name, clubPoints.totalPoints FROM \n" +
             "(SELECT home_club_id AS clubId, \n" +
             "SUM(CASE WHEN home_club_number_of_goals > away_club_number_of_goals THEN 3 \n" +
             "\t\t WHEN home_club_number_of_goals = away_club_number_of_goals THEN 1 \n" +
-            "\t\t ELSE 0 END) AS totalPoints \n" +
-            "FROM match_entity \n" +
-            "GROUP BY home_club_id \n" +
-            "HAVING totalPoints > 0 \n" +
-            "UNION \n" +
+            "\t\t ELSE 0 END) AS totalPoints \n " +
+            "FROM matches \n " +
+            "GROUP BY home_club_id \n " +
+            "HAVING totalPoints > 0 \n " +
+            "UNION \n " +
             "SELECT away_club_id AS clubId, \n" +
             "SUM(CASE WHEN away_club_number_of_goals > home_club_number_of_goals THEN 3 \n" +
             "\t\t WHEN away_club_number_of_goals = home_club_number_of_goals THEN 1 \n" +
             "\t\t ELSE 0 END) AS totalPoints \n" +
-            "FROM match_entity\n" +
+            "FROM matches \n" +
             "GROUP BY away_club_id \n" +
             "HAVING totalPoints > 0) as clubPoints\n" +
-            "INNER JOIN club_entity c ON c.id = clubPoints.clubId\n" +
+            "INNER JOIN club c ON c.id = clubPoints.clubId\n" +
             "ORDER BY clubPoints.totalPoints DESC")
     List<Object[]> getRankingByTotalPoints();
 }

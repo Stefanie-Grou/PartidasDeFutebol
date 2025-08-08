@@ -223,7 +223,6 @@ public class ClubController {
                     ]""")))
     @GetMapping("/ranking")
     public ResponseEntity<?> getClubsRanking(
-            //todo: "pontos" retorna erro 500
             @RequestParam String rankingFactor) {
         return ResponseEntity.status(200).body(clubService.callClubRankingDispatcher(rankingFactor));
     }
