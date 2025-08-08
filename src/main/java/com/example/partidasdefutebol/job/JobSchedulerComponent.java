@@ -18,7 +18,8 @@ public class JobSchedulerComponent {
         this.jobScheduler = jobScheduler;
     }
 
-    @Scheduled(fixedRate = 30000)
+    public static final Long dayInMilliseconds = 86400000L;
+    @Scheduled(fixedRate = dayInMilliseconds)
     public void scheduleJob() {
         jobScheduler.enqueue(JobService::printRankingWithJob);
     }
