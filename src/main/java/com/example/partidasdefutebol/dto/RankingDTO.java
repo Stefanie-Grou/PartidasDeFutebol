@@ -1,10 +1,7 @@
 package com.example.partidasdefutebol.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -18,4 +15,12 @@ public class RankingDTO {
     @Setter
     @JsonProperty("total")
     private Integer rankingFactor;
+
+    @Override
+    public String toString() {
+        return "RankingDTO{" +
+                "clubName='" + clubName +
+                ", pontos =" + rankingFactor +
+                "}\n";
+    }
 }

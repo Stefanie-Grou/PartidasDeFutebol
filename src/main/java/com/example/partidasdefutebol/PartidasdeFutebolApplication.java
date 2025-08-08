@@ -7,5 +7,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class PartidasdeFutebolApplication {
     public static void main(String[] args) {
         SpringApplication.run(PartidasdeFutebolApplication.class, args);
+        //todo: logs are inactive
     }
 }
