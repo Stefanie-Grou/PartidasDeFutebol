@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component;
 
 @Component
 @EnableScheduling
-//todo: checar o funcionamento do job, para que ele se execute periodicamente
 public class JobSchedulerComponent {
 
     private final JobScheduler jobScheduler;
@@ -18,8 +17,7 @@ public class JobSchedulerComponent {
         this.jobScheduler = jobScheduler;
     }
 
-    public static final Long dayInMilliseconds = 86400000L;
-    @Scheduled(fixedRate = dayInMilliseconds)
+    @Scheduled(fixedRate = 86400000)
     public void scheduleJob() {
         jobScheduler.enqueue(JobService::printRankingWithJob);
     }
